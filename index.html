@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Wedding Planner | King of Cards</title>
+<meta name="description" content="Plan your entire wedding in minutes: a personalised budget, day-by-day plan and invitations from King of Cards.">
+<meta property="og:title" content="King of Cards AI Wedding Planner (prototype)">
+<meta property="og:description" content="Plan your wedding budget in minutes, with vendors matched to your budget.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Marcellus&display=swap" rel="stylesheet">
+<style>
+/* Brand tokens — PLACEHOLDERS. Swap for the live kingofcards.in theme values (settings_data.json). */
+:root {
+  --ink: #1C2826; --muted: #56676A; --line: #D6DFDD; --line-2: #E6ECEA;
+  --bg: #F2F5F4; --paper: #FFFFFF; --tint: #E8F0EE;
+  --peacock: #0E4A47; --peacock-2: #15625E; --on-peacock: #FFFFFF;
+  --marigold: #D99A1E; --marigold-soft: #FBF1DC;
+  --kumkum: #A3293B; --kumkum-soft: #F8E6E8;
+  --good: #2D7A4F; --good-soft: #E3F2E8; --warn: #A86A12; --warn-soft: #FBEFD9;
+  --radius: 10px; --radius-lg: 18px;
+  --display: 'Marcellus', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --ui: 'Figtree', 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --shadow: 0 1px 2px rgba(20, 40, 38, .06), 0 6px 20px rgba(20, 40, 38, .06);
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #E6EEEC; --muted: #A2B3B1; --line: #33413F; --line-2: #2A3634;
+    --bg: #121A19; --paper: #1A2423; --tint: #1F2E2C;
+    --peacock: #5FB3AA; --peacock-2: #7CC6BD; --on-peacock: #0C1716;
+    --marigold: #E7B24A; --marigold-soft: #33291A;
+    --kumkum: #E0707F; --kumkum-soft: #3A2327;
+    --good: #6CC592; --good-soft: #1D3226; --warn: #E3A94D; --warn-soft: #362B18;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #E6EEEC; --muted: #A2B3B1; --line: #33413F; --line-2: #2A3634;
+  --bg: #121A19; --paper: #1A2423; --tint: #1F2E2C;
+  --peacock: #5FB3AA; --peacock-2: #7CC6BD; --on-peacock: #0C1716;
+  --marigold: #E7B24A; --marigold-soft: #33291A;
+  --kumkum: #E0707F; --kumkum-soft: #3A2327;
+  --good: #6CC592; --good-soft: #1D3226; --warn: #E3A94D; --warn-soft: #362B18;
+}
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 80px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--ui); font-size: 16px; line-height: 1.55; font-variant-numeric: tabular-nums; }
+img { max-width: 100%; }
+a { color: var(--peacock); }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.15; margin: 0 0 .5em; letter-spacing: .005em; }
+h1 { font-size: clamp(2.2rem, 5.2vw, 3.6rem); }
+h2 { font-size: clamp(1.6rem, 3vw, 2.15rem); }
+h3 { font-size: 1.3rem; }
+p { margin: 0 0 1em; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--marigold); outline-offset: 2px; border-radius: 6px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+.muted { color: var(--muted); }
+.small { font-size: .875rem; }
+.tiny { font-size: .8rem; }
+
+/* Prototype banner */
+.proto { background: #1C2826; color: #F2F5F4; font-size: .82rem; }
+.proto .wrap { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding-top: 6px; padding-bottom: 6px; }
+.proto button { background: none; border: 1px solid currentColor; border-radius: 99px; color: inherit; padding: 2px 10px; cursor: pointer; font-size: .78rem; white-space: nowrap; }
+
+/* Store header stand-in */
+.site { background: var(--paper); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; }
+.site .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.brand { font-family: var(--display); font-size: 1.35rem; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.site nav { display: flex; gap: 20px; margin-left: auto; font-size: .92rem; }
+.site nav a { color: var(--muted); text-decoration: none; }
+.site nav a[aria-current] { color: var(--peacock); font-weight: 600; }
+@media (max-width: 760px) { .site nav a:not([aria-current]) { display: none; } .hide-sm { display: none; } }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 99px; border: 1px solid var(--peacock); background: var(--peacock); color: var(--on-peacock); padding: 12px 24px; font-weight: 600; cursor: pointer; text-decoration: none; min-height: 48px; transition: background .15s; }
+.btn:hover { background: var(--peacock-2); }
+.btn.ghost { background: transparent; color: var(--peacock); }
+.btn.ghost:hover { background: var(--tint); }
+.btn.quiet { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn.sm { padding: 6px 14px; min-height: 36px; font-size: .9rem; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--peacock); text-decoration: underline; cursor: pointer; font-weight: 600; }
+
+/* Jharokha arch — the one signature shape */
+.arch { background: var(--paper); border: 1px solid var(--line); border-radius: 50% 50% var(--radius-lg) var(--radius-lg) / 120px 120px var(--radius-lg) var(--radius-lg); box-shadow: var(--shadow); position: relative; }
+.arch::before { content: ''; position: absolute; inset: 8px; border: 1px solid var(--line-2); border-radius: 50% 50% 12px 12px / 112px 112px 12px 12px; pointer-events: none; }
+.arch-inner { position: relative; padding: 76px 28px 28px; }
+
+/* Landing */
+.hero { padding: 56px 0 40px; }
+.hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; }
+.hero p.lead { font-size: 1.15rem; color: var(--muted); max-width: 34em; }
+.hero .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 28px 0 14px; }
+.trust { font-size: .92rem; color: var(--muted); }
+.sample h3 { text-align: center; margin-bottom: 2px; }
+.sample .sub { text-align: center; color: var(--muted); font-size: .9rem; margin-bottom: 18px; }
+.sample .big { text-align: center; font-size: 2rem; font-weight: 700; letter-spacing: -.01em; }
+.sample .range { text-align: center; color: var(--muted); font-size: .85rem; margin-bottom: 18px; }
+.minibars { display: grid; gap: 8px; }
+.minibar { display: grid; grid-template-columns: 1fr 64px; gap: 10px; font-size: .85rem; align-items: center; }
+.minibar .t { position: relative; }
+.minibar .t span { position: relative; z-index: 1; padding-left: 8px; }
+.minibar .t i { position: absolute; inset: 0 auto 0 0; background: var(--tint); border-radius: 4px; }
+.minibar b { text-align: right; font-weight: 600; }
+.tag { display: inline-block; font-size: .75rem; padding: 2px 10px; border-radius: 99px; background: var(--marigold-soft); color: var(--warn); font-weight: 600; }
+.band { padding: 56px 0; }
+.band.alt { background: var(--paper); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; counter-reset: s; list-style: none; padding: 0; margin: 28px 0 0; }
+.steps3 li { counter-increment: s; border-top: 2px solid var(--peacock); padding-top: 16px; }
+.steps3 li::before { content: counter(s); font-family: var(--display); font-size: 2rem; color: var(--peacock); display: block; line-height: 1; margin-bottom: 8px; }
+.steps3 h3 { font-size: 1.2rem; }
+.gets { columns: 2; column-gap: 48px; padding: 0; list-style: none; margin: 20px 0 0; }
+.gets li { break-inside: avoid; padding: 12px 0 12px 28px; border-bottom: 1px solid var(--line-2); position: relative; }
+.gets li::before { content: ''; position: absolute; left: 4px; top: 21px; width: 10px; height: 10px; border: 2px solid var(--marigold); border-radius: 50% 50% 2px 2px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+details.faq { border-bottom: 1px solid var(--line); padding: 14px 0; }
+details.faq summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+details.faq summary::after { content: '+'; color: var(--peacock); font-size: 1.3rem; line-height: 1; }
+details.faq[open] summary::after { content: '−'; }
+details.faq p { margin: 10px 0 0; color: var(--muted); }
+.cta-band { text-align: center; }
+.resume { background: var(--marigold-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+
+@media (max-width: 880px) {
+  .hero .wrap, .split { grid-template-columns: 1fr; gap: 32px; }
+  .steps3 { grid-template-columns: 1fr; gap: 24px; }
+  .gets { columns: 1; }
+  .hero { padding-top: 32px; }
+}
+
+/* Planner */
+.planner { padding: 28px 0 80px; }
+.planner .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
+.progress { grid-column: 1 / -1; }
+.progress ol { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.progress li button { all: unset; display: block; cursor: pointer; width: 100%; }
+.progress li .bar { height: 4px; border-radius: 4px; background: var(--line); display: block; }
+.progress li.done .bar { background: var(--peacock); }
+.progress li.now .bar { background: var(--marigold); }
+.progress li .lbl { display: block; font-size: .78rem; color: var(--muted); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.progress li.now .lbl { color: var(--ink); font-weight: 600; }
+.progress li button[disabled] { cursor: default; }
+.stepcard { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow); }
+.stepcard .kicker { color: var(--muted); font-size: .9rem; margin-bottom: 4px; }
+.stepcard h2 { margin-bottom: 6px; }
+.stepcard .help { color: var(--muted); margin-bottom: 24px; max-width: 40em; }
+.q { margin: 0 0 26px; border: 0; padding: 0; min-width: 0; }
+.q > legend, .q > label.ql { font-weight: 600; margin-bottom: 10px; display: block; padding: 0; }
+.q .hint { color: var(--muted); font-size: .875rem; margin: -4px 0 10px; }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.opts.wide { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.opt span { display: block; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; background: var(--paper); min-height: 48px; height: 100%; transition: border-color .12s, background .12s; }
+.opt span b { display: block; font-weight: 600; }
+.opt span small { display: block; color: var(--muted); font-size: .82rem; margin-top: 2px; line-height: 1.35; }
+.opt input:checked + span { border-color: var(--peacock); background: var(--tint); box-shadow: inset 0 0 0 1px var(--peacock); }
+.opt input:focus-visible + span { outline: 3px solid var(--marigold); outline-offset: 2px; }
+.opt input:disabled + span { opacity: .45; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip span { display: inline-block; border: 1px solid var(--line); border-radius: 99px; padding: 8px 14px; background: var(--paper); font-size: .92rem; min-height: 40px; }
+.chip input:checked + span { background: var(--peacock); border-color: var(--peacock); color: var(--on-peacock); }
+.chip .pn { font-size: .72rem; font-weight: 700; margin-right: 8px; padding: 2px 8px; border-radius: 99px; background: rgba(0,0,0,.18); }
+.chip input:focus-visible + span { outline: 3px solid var(--marigold); outline-offset: 2px; }
+.chip input:disabled + span { opacity: .4; }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; font-size: .92rem; }
+.inp, select.inp { border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 12px; background: var(--paper); min-height: 46px; width: 100%; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.range-wrap { display: grid; gap: 8px; }
+.range-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.range-val { font-size: 1.8rem; font-weight: 700; letter-spacing: -.01em; }
+input[type=range] { width: 100%; accent-color: var(--peacock); height: 32px; }
+.numbox { width: 120px; }
+.note { border-left: 3px solid var(--marigold); background: var(--marigold-soft); padding: 10px 14px; border-radius: 0 var(--radius) var(--radius) 0; font-size: .92rem; margin: 0 0 20px; }
+.note.info { border-color: var(--peacock); background: var(--tint); }
+.note.bad { border-color: var(--kumkum); background: var(--kumkum-soft); }
+.err { color: var(--kumkum); font-size: .9rem; font-weight: 600; margin: 8px 0 0; }
+.navrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line-2); }
+.toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.toggle input { width: 20px; height: 20px; accent-color: var(--peacock); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; padding: 3px; background: var(--paper); flex-wrap: wrap; }
+.seg label { position: relative; }
+.seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.seg span { display: block; padding: 6px 14px; border-radius: 99px; font-size: .9rem; }
+.seg input:checked + span { background: var(--peacock); color: var(--on-peacock); }
+.seg input:focus-visible + span { outline: 3px solid var(--marigold); }
+
+/* Events timeline */
+.days { display: grid; gap: 14px; }
+.day { border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.day > header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); font-weight: 600; }
+.ev { background: var(--paper); border-bottom: 1px solid var(--line-2); }
+.ev:last-child { border-bottom: 0; border-radius: 0 0 var(--radius) var(--radius); }
+.ev-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.ev-row .nm { font-weight: 600; }
+.ev-row .meta { color: var(--muted); font-size: .85rem; }
+.ev-row .acts { margin-left: auto; display: flex; gap: 6px; }
+.iconbtn { border: 1px solid var(--line); background: var(--paper); border-radius: 99px; padding: 6px 12px; cursor: pointer; font-size: .85rem; min-height: 36px; }
+.iconbtn:hover { border-color: var(--peacock); }
+.ev-edit { padding: 4px 14px 18px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.addrow { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-top: 16px; }
+.addrow .field { flex: 1 1 200px; }
+
+/* Summary (arch) */
+.summary { position: sticky; top: 88px; }
+.summary h3 { text-align: center; font-size: 1.35rem; margin-bottom: 18px; }
+.summary dl { margin: 0; display: grid; gap: 0; }
+.summary .sr-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line-2); font-size: .94rem; }
+.summary dt { color: var(--muted); }
+.summary dd { margin: 0; font-weight: 600; text-align: right; }
+.summary .est { margin-top: 16px; text-align: center; }
+.summary .est .v { font-size: 1.5rem; font-weight: 700; }
+.summary .est .l { color: var(--muted); font-size: .82rem; }
+.msum { display: none; }
+@media (max-width: 960px) {
+  .planner .wrap { grid-template-columns: minmax(0, 1fr); }
+  .summary { display: none; }
+  .msum { display: block; position: sticky; top: 64px; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .msum button { all: unset; display: flex; gap: 14px; width: 100%; box-sizing: border-box; padding: 10px 20px; font-size: .85rem; overflow-x: auto; white-space: nowrap; cursor: pointer; }
+  .msum b { font-weight: 700; }
+  .msum .open { padding: 0 20px 14px; }
+  .progress ol { grid-template-columns: repeat(8, 1fr); }
+  .progress li .lbl { display: none; }
+  .progress li.now .lbl { display: block; position: absolute; }
+  .progress { position: relative; padding-bottom: 20px; }
+  .stepcard { padding: 22px 18px; }
+  .row2 { grid-template-columns: 1fr; }
+}
+
+/* Generating */
+.gen { min-height: 60vh; display: grid; place-items: center; text-align: center; padding: 40px 20px; }
+.gen ol { list-style: none; padding: 0; margin: 20px auto 0; text-align: left; display: inline-grid; gap: 10px; }
+.gen li { color: var(--muted); display: flex; gap: 10px; align-items: center; }
+.gen li.on { color: var(--ink); }
+.gen li.ok { color: var(--ink); }
+.gen li i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); display: inline-block; flex: none; }
+.gen li.on i { border-color: var(--marigold); border-top-color: transparent; animation: spin .8s linear infinite; }
+.gen li.ok i { border-color: var(--good); background: var(--good); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Results */
+.results { padding: 28px 0 120px; }
+.res-head { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 32px; align-items: start; margin-bottom: 28px; }
+.res-head h1 { font-size: clamp(2rem, 4vw, 2.8rem); }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); margin: 18px 0; background: var(--paper); border-radius: var(--radius); overflow: hidden; }
+.facts div { padding: 12px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.facts dt { color: var(--muted); font-size: .8rem; }
+.facts dd { margin: 0; font-weight: 600; }
+.totalcard { padding: 24px; }
+.totalcard .v { font-size: 2.3rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-weight: 700; font-size: .82rem; }
+.badge.comfortable { background: var(--good-soft); color: var(--good); }
+.badge.tight { background: var(--warn-soft); color: var(--warn); }
+.badge.stretch, .badge.unrealistic { background: var(--kumkum-soft); color: var(--kumkum); }
+.meter { position: relative; height: 40px; margin: 26px 0 8px; }
+.meter .track { position: absolute; left: 0; right: 0; top: 16px; height: 8px; background: var(--line-2); border-radius: 8px; }
+.meter .rng { position: absolute; top: 16px; height: 8px; background: var(--peacock); opacity: .35; border-radius: 8px; }
+.meter .typ { position: absolute; top: 10px; width: 3px; height: 20px; background: var(--peacock); border-radius: 2px; transform: translateX(-1px); }
+.meter .bud { position: absolute; top: 0; height: 40px; width: 0; border-left: 2px dashed var(--marigold); }
+.meter .bud span { position: absolute; left: 6px; top: -4px; font-size: .75rem; font-weight: 700; color: var(--warn); white-space: nowrap; }
+.meter-legend { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); }
+.adjust { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 16px 18px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 14px; align-items: end; margin-bottom: 32px; position: sticky; top: 72px; z-index: 15; box-shadow: var(--shadow); }
+.adjust .field label { font-size: .8rem; color: var(--muted); font-weight: 600; }
+.adjust .inp { min-height: 40px; padding: 7px 10px; }
+.res-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 32px; align-items: start; }
+.sec { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 24px; }
+.sec > h2 { margin-bottom: 6px; }
+.sec > .lead { color: var(--muted); margin-bottom: 20px; }
+.ai-note { font-size: .8rem; color: var(--muted); border-top: 1px dashed var(--line); margin-top: 16px; padding-top: 10px; }
+.lines { display: grid; gap: 2px; }
+.line { border-bottom: 1px solid var(--line-2); }
+.line > button { all: unset; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr) 120px 110px 24px; gap: 12px; align-items: center; width: 100%; padding: 11px 4px; cursor: pointer; }
+.line > button:focus-visible { outline: 3px solid var(--marigold); }
+.line .nm { font-weight: 600; }
+.line .nm small { display: block; font-weight: 400; color: var(--muted); font-size: .8rem; }
+.line .bar { height: 8px; background: var(--line-2); border-radius: 8px; position: relative; overflow: hidden; }
+.line .bar i { position: absolute; inset: 0 auto 0 0; background: var(--peacock); border-radius: 8px; }
+.line .bar i.p { background: var(--marigold); }
+.line .v { text-align: right; font-weight: 700; }
+.line .v small { display: block; font-weight: 400; color: var(--muted); font-size: .76rem; }
+.line .chev { color: var(--muted); transition: transform .15s; }
+.line.open .chev { transform: rotate(90deg); }
+.line .trace { display: none; padding: 0 4px 14px; color: var(--muted); font-size: .88rem; }
+.line.open .trace { display: block; }
+.trace ul { margin: 0; padding-left: 18px; }
+.trace .src { margin-top: 6px; font-size: .8rem; }
+.totrow { display: grid; grid-template-columns: minmax(0, 1fr) 120px 110px 24px; gap: 12px; padding: 14px 4px 0; font-weight: 700; }
+.totrow .v { text-align: right; }
+.sched { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.sched .d { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.sched .d h3 { font-family: var(--ui); font-size: .95rem; font-weight: 700; margin: 0; padding: 10px 14px; background: var(--tint); }
+.sched .d ul { list-style: none; margin: 0; padding: 6px 14px 12px; }
+.sched .d li { padding: 8px 0; border-bottom: 1px solid var(--line-2); }
+.sched .d li:last-child { border-bottom: 0; }
+.sched .d li b { display: block; }
+.sched .d li span { color: var(--muted); font-size: .85rem; }
+.strat { display: grid; gap: 22px; }
+.strat h3 { font-family: var(--ui); font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+.strat p { margin-bottom: 6px; }
+.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin: 10px 0; }
+.kv div { background: var(--bg); border-radius: var(--radius); padding: 10px 12px; }
+.kv dt { font-size: .78rem; color: var(--muted); }
+.kv dd { margin: 0; font-weight: 700; }
+.koc { border: 2px solid var(--peacock); }
+.koc .prods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+.koc .prod { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; text-decoration: none; color: inherit; display: grid; gap: 4px; background: var(--paper); }
+.koc .prod:hover { border-color: var(--peacock); }
+.koc .prod .sw { height: 84px; border-radius: 60px 60px 6px 6px / 40px 40px 6px 6px; margin-bottom: 8px; background: var(--tint); border: 1px solid var(--line-2); }
+.koc .prod b { font-weight: 700; }
+.koc .prod span { color: var(--muted); font-size: .85rem; }
+.checklist { columns: 2; column-gap: 28px; padding-left: 0; list-style: none; margin: 0 0 16px; }
+.checklist li { break-inside: avoid; padding: 6px 0 6px 24px; position: relative; font-size: .94rem; }
+.checklist li::before { content: ''; position: absolute; left: 0; top: 11px; width: 12px; height: 12px; border: 2px solid var(--peacock); border-radius: 3px; }
+.checklist li small { color: var(--muted); }
+.levers { display: grid; gap: 10px; }
+.lever { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+.lever b { display: block; }
+.lever small { color: var(--muted); display: block; }
+.lever .save { font-weight: 700; color: var(--good); text-align: right; white-space: nowrap; }
+.cmp { width: 100%; border-collapse: collapse; font-size: .94rem; }
+.cmp-wrap { overflow-x: auto; }
+.cmp th, .cmp td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.cmp th { font-weight: 600; color: var(--muted); font-size: .84rem; }
+.cmp td.num { font-weight: 700; white-space: nowrap; }
+.cmp tr.cur td { background: var(--tint); }
+.side { position: sticky; top: 176px; display: grid; gap: 16px; }
+.side .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; }
+.side .card h3 { font-size: 1.2rem; }
+.side .btn { width: 100%; }
+.stack { display: grid; gap: 10px; }
+
+/* Chat */
+.chat { display: grid; gap: 12px; }
+.msgs { display: grid; gap: 12px; max-height: 520px; overflow-y: auto; padding: 4px; }
+.msg { max-width: 88%; padding: 12px 14px; border-radius: 14px; font-size: .95rem; }
+.msg.u { justify-self: end; background: var(--peacock); color: var(--on-peacock); border-bottom-right-radius: 4px; }
+.msg.a { justify-self: start; background: var(--bg); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.msg.a p:last-child { margin-bottom: 0; }
+.msg .mini { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: .88rem; }
+.msg .mini td, .msg .mini th { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+.msg .mini td.num { text-align: right; font-weight: 700; white-space: nowrap; }
+.msg .apply { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.sugg { display: flex; gap: 8px; flex-wrap: wrap; }
+.sugg button { border: 1px solid var(--line); background: var(--paper); border-radius: 99px; padding: 7px 12px; font-size: .86rem; cursor: pointer; text-align: left; }
+.sugg button:hover { border-color: var(--peacock); }
+.composer { display: flex; gap: 8px; }
+.composer .inp { flex: 1; }
+.typing { color: var(--muted); font-size: .9rem; }
+
+.mbar { display: none; }
+@media (max-width: 960px) {
+  .res-head, .res-grid { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; }
+  .adjust { grid-template-columns: 1fr 1fr; position: static; }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .adjust .btn { grid-column: 1 / -1; }
+  .line > button, .totrow { grid-template-columns: minmax(0, 1fr) 90px 20px; }
+  .line .bar { display: none; }
+  .totrow > span:nth-child(2) { display: none; }
+  .koc .prods { grid-template-columns: 1fr; }
+  .checklist { columns: 1; }
+  .sec { padding: 20px 16px; }
+  .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; background: var(--paper); border-top: 1px solid var(--line); padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
+  .mbar .btn { flex: 1; padding: 10px 12px; font-size: .92rem; }
+}
+
+/* Modal */
+.modal-bg { position: fixed; inset: 0; background: rgba(12, 22, 21, .55); z-index: 60; display: grid; place-items: center; padding: 20px; }
+.modal { background: var(--paper); border-radius: var(--radius-lg); max-width: 460px; width: 100%; padding: 28px; box-shadow: var(--shadow); max-height: calc(100% - 40px); overflow-y: auto; }
+.modal h2 { font-size: 1.6rem; }
+.modal .stack { gap: 14px; }
+.otp { letter-spacing: .5em; font-size: 1.4rem; text-align: center; }
+.consent { display: flex; gap: 10px; align-items: flex-start; font-size: .88rem; color: var(--muted); }
+.consent input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--peacock); flex: none; }
+.toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 99px; z-index: 70; font-size: .92rem; }
+
+/* Dev panel */
+.dev { position: fixed; right: 16px; bottom: 16px; width: min(420px, calc(100% - 32px)); max-height: 60vh; overflow: auto; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow); z-index: 80; padding: 16px; font-size: .85rem; }
+.dev h3 { font-family: var(--ui); font-size: 1rem; font-weight: 700; }
+.dev ol { padding-left: 18px; margin: 0; }
+.dev code { font-size: .8rem; background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+
+footer.sitefoot { border-top: 1px solid var(--line); background: var(--paper); padding: 28px 0; color: var(--muted); font-size: .88rem; }
+footer.sitefoot .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+@media print {
+  .proto, .site, .adjust, .side, .mbar, .chatsec, footer.sitefoot, .dev, .modal-bg, .toast { display: none !important; }
+  body { background: #fff; }
+  .res-grid, .res-head { grid-template-columns: 1fr; }
+  .sec { break-inside: avoid; box-shadow: none; }
+  .line .trace { display: block; }
+}
+
+/* v2 additions */
+.steps3.stacked { grid-template-columns: 1fr; gap: 18px; margin: 0; }
+.steps3.stacked li { border-top: 0; padding-top: 0; display: grid; grid-template-columns: 44px 1fr; column-gap: 12px; }
+.steps3.stacked li::before { grid-row: span 2; margin: 0; }
+.steps3.stacked h3 { margin: 4px 0 2px; }
+.steps3.stacked p { margin: 0; }
+.bud-row { display: flex; justify-content: space-between; gap: 12px; font-size: .9rem; padding: 6px 0; border-top: 1px solid var(--line-2); }
+.totalcard .badge { margin-top: 12px; }
+.fitbox { background: var(--marigold-soft); border: 1px solid var(--line); border-left: 3px solid var(--marigold); border-radius: var(--radius); padding: 14px 16px; margin: 16px 0 0; }
+.fitbox.bad { background: var(--kumkum-soft); border-left-color: var(--kumkum); }
+.fitbox p { margin: 0 0 8px; }
+.fitbox ul { margin: 0 0 8px; padding-left: 18px; }
+.fitbox li { margin: 4px 0; }
+.fitbox li span { color: var(--good); font-weight: 600; margin-left: 4px; }
+.fitbox.bad li span { color: inherit; }
+.vend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.vend h3 { font-family: var(--ui); font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.vend ul { list-style: none; margin: 0; padding: 0; }
+.vend li { padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+.vend li a { font-weight: 600; display: block; }
+.vend li span { color: var(--muted); font-size: .86rem; display: block; line-height: 1.4; margin-top: 2px; }
+.adjust { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; }
+@media (max-width: 960px) { .vend { grid-template-columns: 1fr; gap: 8px; } .adjust { grid-template-columns: 1fr 1fr; } }
+
+/* v3 */
+.navErr { margin: 20px 0 0; padding: 10px 14px; background: var(--kumkum-soft); border-radius: var(--radius); }
+.logistics { grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0 0 16px; }
+.tl { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 2px solid var(--line); }
+.tl-g { position: relative; padding: 0 0 18px 16px; }
+.tl-g::before { content: ''; position: absolute; left: -27px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--peacock); }
+.tl-g.now::before { background: var(--kumkum); border-color: var(--kumkum); }
+.tl-g h3 { font-family: var(--ui); font-size: .95rem; font-weight: 700; margin: 0 0 6px; }
+.tl-g.now h3 { color: var(--kumkum); }
+.tl-g ul { list-style: none; margin: 0; padding: 0; }
+.tl-g li { padding: 6px 0; }
+.tl-g li b { display: block; font-weight: 600; }
+.tl-g li span { display: block; color: var(--muted); font-size: .88rem; }
+.tl-g li.kocrow b::after { content: 'King of Cards'; margin-left: 8px; font-size: .72rem; font-weight: 700; color: var(--peacock); border: 1px solid var(--peacock); border-radius: 99px; padding: 1px 8px; vertical-align: 2px; }
+@media (max-width: 960px) { .logistics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* v4: vendor suggestions inside each cost line */
+.line .trace { padding: 4px 4px 16px; }
+.vsug { margin: 4px 0 16px; }
+.vhead { font-weight: 700; margin: 0 0 2px; color: var(--ink); }
+.vbud { margin: 0 0 8px; font-size: .9rem; color: var(--muted); }
+.vnote { margin: 6px 0 14px; font-size: .9rem; color: var(--muted); background: var(--bg); border-radius: var(--radius); padding: 10px 12px; }
+.vlist { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.vitem { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line-2); background: var(--paper); }
+.vitem:last-child { border-bottom: 0; }
+.vmain { min-width: 0; }
+.vmain b { display: block; color: var(--ink); }
+.vmain span { display: block; font-size: .84rem; color: var(--muted); }
+.vmain .vtag { display: inline-block; margin-top: 4px; font-size: .74rem; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--line-2); color: var(--muted); }
+.vmain .vtag.ok { background: var(--good-soft); color: var(--good); }
+.vmain .vtag.hi { background: var(--warn-soft); color: var(--warn); }
+.vact { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.vact .iconbtn.on { background: var(--marigold-soft); border-color: var(--marigold); color: var(--ink); font-weight: 600; }
+details.calc { margin-top: 6px; font-size: .88rem; color: var(--muted); }
+details.calc summary { cursor: pointer; color: var(--peacock); font-weight: 600; }
+details.calc ul { margin: 6px 0 0; padding-left: 18px; }
+.line .nm small { color: var(--peacock); }
+@media (max-width: 600px) { .vitem { flex-direction: column; align-items: stretch; } .vact { flex-direction: row; justify-content: space-between; align-items: center; } }
+
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="brand" href="https://kingofcards.in" target="_blank" rel="noopener">King of Cards</a>
+</div></header>
+<main id="app"></main>
+<footer class="sitefoot"><div class="wrap"><span>King of Cards India Pvt Ltd. Estimates are planning ranges, not quotes.</span><span>In the live store this header and footer come from the Shopify theme.</span></div></footer>
+<div id="modal-root"></div>
+<script id="engine">
+/* ==========================================================================
+   KING OF CARDS AI WEDDING PLANNER — BUDGET ENGINE (PROTOTYPE)
+   Deterministic. Every figure comes from quantities x unit rates x multipliers.
+   ALL RATES BELOW ARE DEMO DATA for the prototype, not verified prices.
+   In production these come from cost_benchmarks via the backend API.
+   ========================================================================== */
+
+const TIERS = ['Simple', 'Value', 'Mid-premium', 'Premium', 'Luxury', 'Ultra-luxury'];
+const TIER_MIN = [0, 6000, 12000, 25000, 50000, 100000]; // intensity thresholds (assumption)
+const STYLES = [
+  { id: 'match', label: 'Match my budget' },
+  { id: 'simple', label: 'Simple', tier: 1 },
+  { id: 'classic', label: 'Classic', tier: 2 },
+  { id: 'premium', label: 'Premium', tier: 3 },
+  { id: 'luxury', label: 'Luxury', tier: 4 },
+  { id: 'grand', label: 'Grand', tier: 5 }
+];
+
+/* ---------- Destinations (DEMO) ---------- */
+const S_RAJ = { peak: [11, 12, 1, 2], off: [4, 5, 6], monsoon: [7, 8, 9] };
+const S_GOA = { peak: [11, 12, 1, 2], off: [5], monsoon: [6, 7, 8, 9] };
+const S_KER = { peak: [11, 12, 1, 2], off: [4, 5], monsoon: [6, 7, 8, 9] };
+const S_UK = { peak: [10, 11, 2, 3], off: [5, 6], monsoon: [7, 8, 9] };
+const S_METRO = { peak: [11, 12, 1, 2], off: [6], monsoon: [7, 8] };
+const S_MUM = { peak: [11, 12, 1, 2], off: [5], monsoon: [6, 7, 8, 9] };
+
+function D(id, name, state, region, type, idx, roomIdx, airport, transfer, season, maxGuests, note, flags) {
+  return Object.assign({ id, name, state, region, type, idx, roomIdx, airport, transfer, maxGuests, note }, season, flags);
+}
+const DEST_LIST = [
+  // King of Cards store cities (home-city weddings)
+  D('bengaluru', 'Bengaluru', 'Karnataka', 'South', 'Metro', 1.0, 1.0, 'Bengaluru (BLR)', 60, S_METRO, 3000, 'Large choice of convention halls, hotels and garden venues.', { home: true }),
+  D('hyderabad', 'Hyderabad', 'Telangana', 'South', 'Metro', 0.95, 0.95, 'Hyderabad (HYD)', 50, S_METRO, 3000, 'Big-format halls and palaces; strong catering depth.', { home: true, dest: true }),
+  D('mysuru', 'Mysuru', 'Karnataka', 'South', 'Heritage city', 0.9, 0.85, 'Mysuru (MYQ) or Bengaluru (BLR)', 180, S_METRO, 1200, 'Good-value heritage option close to Bengaluru.', { home: true, dest: true }),
+  D('visakhapatnam', 'Visakhapatnam', 'Andhra Pradesh', 'South', 'Coastal city', 0.9, 0.95, 'Visakhapatnam (VTZ)', 30, S_METRO, 1500, 'Beach resorts and convention halls; October–November can be rainy.', { home: true }),
+  D('hubballi', 'Hubballi', 'Karnataka', 'South', 'City', 0.75, 0.75, 'Hubballi (HBX)', 20, S_METRO, 1000, 'Lower city costs; fewer premium hotel rooms.', { home: true }),
+  // Destinations
+  D('udaipur', 'Udaipur', 'Rajasthan', 'Rajasthan', 'Lakes and palaces', 1.35, 1.5, 'Udaipur (UDR)', 30, S_RAJ, 600, 'Island palaces suit 100–250 guests; larger weddings use mainland resorts.', { dest: true }),
+  D('jaipur', 'Jaipur', 'Rajasthan', 'Rajasthan', 'Heritage city', 1.2, 1.25, 'Jaipur (JAI)', 25, S_RAJ, 1200, 'Wide choice of palaces, forts and large lawns; good flight links.', { dest: true }),
+  D('jodhpur', 'Jodhpur', 'Rajasthan', 'Rajasthan', 'Forts and palaces', 1.2, 1.3, 'Jodhpur (JDH)', 20, S_RAJ, 700, 'Fewer daily flights than Jaipur; plan guest arrivals carefully.', { dest: true }),
+  D('goa', 'Goa', 'Goa', 'Beach', 'Beach', 1.3, 1.35, 'Goa (GOI / GOX)', 45, S_GOA, 800, 'Outdoor amplified music usually has to stop by 10 pm.', { dest: true }),
+  D('kumarakom', 'Kumarakom, Kerala', 'Kerala', 'South', 'Backwaters', 1.1, 1.1, 'Kochi (COK)', 90, S_KER, 400, 'Backwater resorts are intimate; plan rain cover outside winter.', { dest: true }),
+  D('jaisalmer', 'Jaisalmer', 'Rajasthan', 'Rajasthan', 'Desert and forts', 1.25, 1.2, 'Jaisalmer (JSA), limited flights', 25, { peak: [11, 12, 1, 2], off: [3, 4, 5, 6], monsoon: [7, 8, 9] }, 800, 'Desert nights are cold in winter; summer is too hot for outdoor events. Few direct flights.', { dest: true }),
+  D('rishikesh', 'Rishikesh', 'Uttarakhand', 'Hills', 'Riverside', 1.05, 1.1, 'Dehradun (DED)', 45, S_UK, 400, 'A holy town: meat and alcohol are restricted, so plan a vegetarian, dry wedding.', { dest: true }),
+  D('corbett', 'Jim Corbett', 'Uttarakhand', 'Hills', 'Forest resorts', 1.05, 1.1, 'Pantnagar (PGH), or by road from Delhi', 240, S_UK, 400, 'Most guests drive from Delhi NCR, about 5–6 hours; resorts sit along the Kosi river.', { dest: true }),
+  D('coorg', 'Coorg', 'Karnataka', 'Hills', 'Hills and estates', 1.0, 1.1, 'Mangaluru (IXE) or Bengaluru (BLR)', 150, { peak: [11, 12, 1, 2], off: [4, 5], monsoon: [6, 7, 8, 9] }, 350, 'Long road transfers; heavy monsoon from June to September.', { dest: true })
+];
+const DEST = Object.fromEntries(DEST_LIST.map(d => [d.id, d]));
+/* ---------- All-India city list (paste right after: const DEST = Object.fromEntries(...)) ----------
+   [name, state, cost index]  -> 1.0 = Bengaluru. Rough size-based values for the demo: metros 1.0-1.25,
+   large cities 0.85-0.95, smaller cities 0.75-0.8. Cities already in DEST_LIST are skipped automatically. */
+const INDIA_CITIES = [
+  // Metros
+  ['Mumbai','Maharashtra',1.25],['Delhi','Delhi',1.2],['Gurugram','Haryana',1.15],['Noida','Uttar Pradesh',1.05],
+  ['Chennai','Tamil Nadu',1.0],['Kolkata','West Bengal',0.95],['Pune','Maharashtra',1.05],['Ahmedabad','Gujarat',0.95],
+  ['Thane','Maharashtra',1.15],['Navi Mumbai','Maharashtra',1.15],['Faridabad','Haryana',1.0],['Ghaziabad','Uttar Pradesh',1.0],
+  ['Chandigarh','Chandigarh',1.0],['Kochi','Kerala',1.0],['Mohali','Punjab',0.95],['Panchkula','Haryana',0.95],
+  // Andhra Pradesh, Telangana
+  ['Vijayawada','Andhra Pradesh',0.85],['Guntur','Andhra Pradesh',0.8],['Nellore','Andhra Pradesh',0.78],['Tirupati','Andhra Pradesh',0.85],
+  ['Kakinada','Andhra Pradesh',0.78],['Rajahmundry','Andhra Pradesh',0.78],['Kurnool','Andhra Pradesh',0.75],['Anantapur','Andhra Pradesh',0.75],
+  ['Warangal','Telangana',0.8],['Karimnagar','Telangana',0.75],['Nizamabad','Telangana',0.75],['Khammam','Telangana',0.75],
+  // Karnataka, Kerala, Tamil Nadu, Puducherry
+  ['Mangaluru','Karnataka',0.9],['Belagavi','Karnataka',0.8],['Kalaburagi','Karnataka',0.75],['Davanagere','Karnataka',0.75],
+  ['Ballari','Karnataka',0.75],['Shivamogga','Karnataka',0.78],['Tumakuru','Karnataka',0.8],['Udupi','Karnataka',0.85],
+  ['Hassan','Karnataka',0.78],['Vijayapura','Karnataka',0.75],
+  ['Thiruvananthapuram','Kerala',0.95],['Kozhikode','Kerala',0.92],['Thrissur','Kerala',0.9],['Kollam','Kerala',0.85],
+  ['Kannur','Kerala',0.85],['Alappuzha','Kerala',0.9],['Kottayam','Kerala',0.88],['Munnar','Kerala',1.0],
+  ['Coimbatore','Tamil Nadu',0.92],['Madurai','Tamil Nadu',0.88],['Tiruchirappalli','Tamil Nadu',0.85],['Salem','Tamil Nadu',0.8],
+  ['Tirunelveli','Tamil Nadu',0.78],['Erode','Tamil Nadu',0.8],['Vellore','Tamil Nadu',0.8],['Thanjavur','Tamil Nadu',0.8],
+  ['Tiruppur','Tamil Nadu',0.8],['Kanyakumari','Tamil Nadu',0.85],['Ooty','Tamil Nadu',0.95],['Puducherry','Puducherry',0.95],
+  // Maharashtra, Gujarat, Goa
+  ['Nagpur','Maharashtra',0.9],['Nashik','Maharashtra',0.9],['Aurangabad','Maharashtra',0.85],['Solapur','Maharashtra',0.78],
+  ['Kolhapur','Maharashtra',0.82],['Amravati','Maharashtra',0.78],['Sangli','Maharashtra',0.78],['Satara','Maharashtra',0.8],
+  ['Lonavala','Maharashtra',1.1],['Alibag','Maharashtra',1.1],['Mahabaleshwar','Maharashtra',1.05],
+  ['Surat','Gujarat',0.95],['Vadodara','Gujarat',0.9],['Rajkot','Gujarat',0.88],['Bhavnagar','Gujarat',0.8],
+  ['Jamnagar','Gujarat',0.8],['Gandhinagar','Gujarat',0.9],['Junagadh','Gujarat',0.78],['Bhuj','Gujarat',0.8],
+  // Rajasthan, MP, Chhattisgarh
+  ['Kota','Rajasthan',0.85],['Ajmer','Rajasthan',0.85],['Bikaner','Rajasthan',0.85],['Pushkar','Rajasthan',1.0],
+  ['Alwar','Rajasthan',0.85],['Bhilwara','Rajasthan',0.78],['Sikar','Rajasthan',0.78],['Mount Abu','Rajasthan',1.0],
+  ['Indore','Madhya Pradesh',0.9],['Bhopal','Madhya Pradesh',0.88],['Jabalpur','Madhya Pradesh',0.82],['Gwalior','Madhya Pradesh',0.82],
+  ['Ujjain','Madhya Pradesh',0.8],['Sagar','Madhya Pradesh',0.75],['Satna','Madhya Pradesh',0.75],
+  ['Raipur','Chhattisgarh',0.85],['Bhilai','Chhattisgarh',0.8],['Bilaspur','Chhattisgarh',0.78],
+  // Uttar Pradesh, Uttarakhand, Delhi NCR belt
+  ['Lucknow','Uttar Pradesh',0.92],['Kanpur','Uttar Pradesh',0.85],['Agra','Uttar Pradesh',0.88],['Varanasi','Uttar Pradesh',0.9],
+  ['Prayagraj','Uttar Pradesh',0.85],['Meerut','Uttar Pradesh',0.85],['Bareilly','Uttar Pradesh',0.78],['Aligarh','Uttar Pradesh',0.78],
+  ['Moradabad','Uttar Pradesh',0.78],['Gorakhpur','Uttar Pradesh',0.8],['Mathura','Uttar Pradesh',0.82],['Ayodhya','Uttar Pradesh',0.85],
+  ['Jhansi','Uttar Pradesh',0.78],['Saharanpur','Uttar Pradesh',0.78],
+  ['Dehradun','Uttarakhand',0.92],['Haridwar','Uttarakhand',0.9],['Nainital','Uttarakhand',1.0],['Mussoorie','Uttarakhand',1.05],
+  ['Haldwani','Uttarakhand',0.8],
+  // Punjab, Haryana, HP, J&K
+  ['Ludhiana','Punjab',0.92],['Amritsar','Punjab',0.92],['Jalandhar','Punjab',0.88],['Patiala','Punjab',0.85],['Bathinda','Punjab',0.8],
+  ['Karnal','Haryana',0.85],['Panipat','Haryana',0.85],['Ambala','Haryana',0.85],['Hisar','Haryana',0.8],['Rohtak','Haryana',0.85],['Sonipat','Haryana',0.9],
+  ['Shimla','Himachal Pradesh',0.98],['Manali','Himachal Pradesh',1.0],['Dharamshala','Himachal Pradesh',0.92],
+  ['Srinagar','Jammu and Kashmir',0.95],['Jammu','Jammu and Kashmir',0.85],['Leh','Ladakh',1.1],
+  // Bihar, Jharkhand, Odisha, West Bengal
+  ['Patna','Bihar',0.85],['Gaya','Bihar',0.78],['Muzaffarpur','Bihar',0.75],['Bhagalpur','Bihar',0.75],
+  ['Ranchi','Jharkhand',0.85],['Jamshedpur','Jharkhand',0.85],['Dhanbad','Jharkhand',0.78],['Bokaro','Jharkhand',0.78],
+  ['Bhubaneswar','Odisha',0.88],['Cuttack','Odisha',0.8],['Puri','Odisha',0.88],['Rourkela','Odisha',0.78],['Sambalpur','Odisha',0.75],
+  ['Howrah','West Bengal',0.9],['Siliguri','West Bengal',0.85],['Durgapur','West Bengal',0.8],['Asansol','West Bengal',0.8],['Darjeeling','West Bengal',0.95],
+  // North-East, islands
+  ['Guwahati','Assam',0.9],['Dibrugarh','Assam',0.8],['Silchar','Assam',0.75],['Jorhat','Assam',0.78],
+  ['Shillong','Meghalaya',0.9],['Gangtok','Sikkim',0.95],['Imphal','Manipur',0.8],['Agartala','Tripura',0.78],
+  ['Aizawl','Mizoram',0.8],['Kohima','Nagaland',0.8],['Itanagar','Arunachal Pradesh',0.8],['Port Blair','Andaman and Nicobar Islands',1.1]
+];
+INDIA_CITIES.forEach(([name, state, idx]) => {
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  if (!DEST[id]) DEST[id] = D(id, name, state, 'India', 'City', idx, idx, 'Nearest airport', 45, S_METRO, 1500, '', { home: true });
+});
+function seasonOf(d, m) {
+  if (!d || !m) return { band: 'unknown', label: 'Season not set', mult: 1 };
+  if (d.peak.includes(m)) return { band: 'peak', label: 'Peak season', mult: 1.15 };
+  if (d.monsoon.includes(m)) return { band: 'monsoon', label: 'Monsoon', mult: 0.82 };
+  if (d.off.includes(m)) return { band: 'off', label: 'Off-season', mult: 0.85 };
+  return { band: 'shoulder', label: 'Shoulder season', mult: 1.0 };
+}
+
+/* ---------- Event master (DEMO defaults) ---------- */
+// w = event weight (load, venue), dw = decor weight, meal, share = default guest share, ritual, main
+const EV = {
+  roka:        { name: 'Roka', w: 0.4, dw: 0.3, meal: 'lunch', share: 0.3, slot: 'Afternoon', ritual: true },
+  engagement:  { name: 'Engagement', w: 0.6, dw: 0.5, meal: 'dinner', share: 0.6, slot: 'Evening' },
+  tilak:       { name: 'Tilak', w: 0.4, dw: 0.3, meal: 'lunch', share: 0.3, slot: 'Afternoon', ritual: true },
+  welcome:     { name: 'Welcome dinner', w: 0.5, dw: 0.4, meal: 'dinner', share: 0.8, slot: 'Evening' },
+  mehendi:     { name: 'Mehendi', w: 0.5, dw: 0.45, meal: 'lunch', share: 0.6, slot: 'Afternoon' },
+  haldi:       { name: 'Haldi', w: 0.35, dw: 0.3, meal: 'brunch', share: 0.5, slot: 'Morning' },
+  sangeet:     { name: 'Sangeet', w: 0.7, dw: 0.7, meal: 'dinner', share: 0.8, slot: 'Evening' },
+  cocktail:    { name: 'Cocktail', w: 0.6, dw: 0.5, meal: 'dinner', share: 0.7, slot: 'Night' },
+  pool:        { name: 'Pool party', w: 0.4, dw: 0.3, meal: 'lunch', share: 0.5, slot: 'Afternoon' },
+  bachelor:    { name: 'Bachelor / bachelorette', w: 0.2, dw: 0.2, meal: 'dinner', share: 0.15, slot: 'Night' },
+  baraat:      { name: 'Baraat', w: 0.3, dw: 0.3, meal: 'none', share: 0.8, slot: 'Evening' },
+  wedding:     { name: 'Wedding ceremony', w: 1.0, dw: 1.0, meal: 'dinner', share: 1.0, slot: 'Evening', ritual: true, main: true },
+  muhurtham:   { name: 'Muhurtham', w: 1.0, dw: 1.0, meal: 'lunch', share: 1.0, slot: 'Morning', ritual: true, main: true },
+  nikah:       { name: 'Nikah', w: 1.0, dw: 0.9, meal: 'dinner', share: 1.0, slot: 'Evening', ritual: true, main: true },
+  walima:      { name: 'Walima', w: 0.9, dw: 0.8, meal: 'dinner', share: 1.0, slot: 'Evening' },
+  church:      { name: 'Church ceremony', w: 0.8, dw: 0.6, meal: 'hi-tea', share: 0.9, slot: 'Afternoon', ritual: true, main: true },
+  reception:   { name: 'Reception', w: 0.9, dw: 0.8, meal: 'dinner', share: 1.0, slot: 'Evening' },
+  vidaai:      { name: 'Vidaai', w: 0.1, dw: 0.1, meal: 'none', share: 0.4, slot: 'Night', ritual: true },
+  brunch:      { name: 'Farewell brunch', w: 0.3, dw: 0.2, meal: 'brunch', share: 0.6, slot: 'Morning' },
+  afterparty:  { name: 'After-party', w: 0.3, dw: 0.3, meal: 'snacks', share: 0.3, slot: 'Night' },
+  religious:   { name: 'Puja / religious ceremony', w: 0.3, dw: 0.3, meal: 'lunch', share: 0.4, slot: 'Morning', ritual: true },
+  custom:      { name: 'Custom event', w: 0.4, dw: 0.4, meal: 'dinner', share: 0.5, slot: 'Evening' }
+};
+const MEAL_F = { breakfast: 0.3, brunch: 0.55, lunch: 0.85, 'hi-tea': 0.4, snacks: 0.45, dinner: 1, none: 0 };
+const MEAL_LABEL = { breakfast: 'Breakfast', brunch: 'Brunch', lunch: 'Lunch', 'hi-tea': 'High tea', snacks: 'Snacks', dinner: 'Dinner', none: 'No meal' };
+const BAR_KEYS = ['cocktail', 'sangeet', 'reception', 'welcome', 'pool', 'afterparty', 'engagement', 'walima'];
+
+/* Commonly observed event sets — starting points only, fully editable. [key, day, nameOverride] */
+const TRADITIONS = [
+  { id: 'north', label: 'North Indian', ev: [['mehendi', 1], ['sangeet', 1], ['haldi', 2], ['baraat', 2], ['wedding', 2], ['reception', 3]] },
+  { id: 'punjabi', label: 'Punjabi', ev: [['mehendi', 1], ['sangeet', 1], ['haldi', 2], ['wedding', 2], ['reception', 3]] },
+  { id: 'gujarati', label: 'Gujarati', ev: [['mehendi', 1], ['sangeet', 1, 'Sangeet / Garba'], ['haldi', 2, 'Pithi'], ['wedding', 2], ['reception', 3]] },
+  { id: 'marwari', label: 'Marwari', ev: [['mehendi', 1], ['sangeet', 1], ['haldi', 2], ['baraat', 2], ['wedding', 2], ['reception', 3]] },
+  { id: 'bengali', label: 'Bengali', ev: [['religious', 1, 'Aiburobhat'], ['haldi', 2, 'Gaye holud'], ['wedding', 2], ['reception', 3, 'Bou bhaat']] },
+  { id: 'tamil', label: 'Tamil', ev: [['engagement', 1, 'Nichayathartham'], ['reception', 1], ['muhurtham', 2]] },
+  { id: 'telugu', label: 'Telugu', ev: [['haldi', 1, 'Pelli kuthuru / Pelli koduku'], ['wedding', 2], ['reception', 2]] },
+  { id: 'kannada', label: 'Kannada', ev: [['engagement', 1], ['haldi', 2], ['muhurtham', 2], ['reception', 2]] },
+  { id: 'kerala', label: 'Kerala', ev: [['engagement', 1], ['muhurtham', 2, 'Wedding ceremony'], ['reception', 2]] },
+  { id: 'maharashtrian', label: 'Maharashtrian', ev: [['engagement', 1, 'Sakharpuda'], ['haldi', 2], ['wedding', 2], ['reception', 2]] },
+  { id: 'sindhi', label: 'Sindhi', ev: [['mehendi', 1], ['sangeet', 1], ['wedding', 2], ['reception', 2]] },
+  { id: 'jain', label: 'Jain', rel: 'hindu', ev: [['mehendi', 1], ['sangeet', 1], ['wedding', 2], ['reception', 2]], diet: 'jain' },
+  { id: 'muslim', label: 'Muslim', rel: 'muslim', ev: [['mehendi', 1], ['nikah', 2], ['walima', 3]] },
+  { id: 'christian', label: 'Christian', rel: 'christian', ev: [['engagement', 1], ['church', 2], ['reception', 2]] },
+  { id: 'other', label: 'Other or our own', rel: null, ev: [['wedding', 1], ['reception', 1]] }
+];
+
+/* ---------- Unit rates by tier 0..5 (DEMO, base city index 1.0, taxes included) ---------- */
+const R = {
+  plate:   [600, 950, 1500, 2400, 3800, 6200],       // per guest, dinner, vegetarian
+  bar:     [600, 800, 1200, 1800, 2800, 4500],        // per drinking guest per event
+  venue:   [30000, 75000, 160000, 320000, 650000, 1300000], // per main-event equivalent
+  decor:   [35000, 90000, 190000, 420000, 900000, 2000000], // calibrated to listed décor starting prices (WedMeGood, Sep 2026)
+  prod:    [20000, 40000, 80000, 160000, 320000, 650000],
+  photo:   [35000, 60000, 100000, 170000, 300000, 520000], // per day, team
+  album:   [10000, 20000, 35000, 60000, 100000, 180000],
+  room:    [4500, 7500, 13000, 26000, 42000],          // per night: 3-star, 4-star, 5-star, luxury, palace
+  card:    [8, 25, 55, 120, 450, 1600],                // per invitation (King of Cards shelves)
+  digital: [2000, 4000, 8000, 15000, 25000, 40000],
+  insert:  [0, 60, 120, 250, 500, 900],                // per room: welcome note, itinerary, room insert
+  signage: [3000, 6000, 12000, 25000, 45000, 80000],   // per event: menus, signage, table cards
+  tag:     [2, 4, 8, 15, 30, 50],
+  hamper:  [300, 600, 1100, 2000, 3500, 6500],
+  rgift:   [120, 250, 450, 800, 1500, 3000],
+  desk:    [0, 8000, 15000, 25000, 40000, 60000],      // hospitality desk per day
+  transfer:[1800, 2200, 2800, 3500, 5000, 8000],       // per vehicle trip, 45 min base
+  bus: 7000,
+  car:     [10000, 18000, 30000, 55000, 90000, 150000],
+  look:    [6000, 12000, 22000, 40000, 70000, 120000], // bride look per event
+  fam:     [2000, 3000, 4500, 7000, 11000, 18000],     // family make-up per person per event
+  meh:     [150, 220, 350, 500, 800, 1200],
+  bridemeh:[1500, 2500, 4000, 6000, 10000, 18000], // bridal mehendi; calibrated to listed Bengaluru/Hyderabad prices
+  ritual:  [11000, 21000, 35000, 55000, 85000, 150000],
+  minfee:  [40000, 80000, 150000, 300000, 600000, 1200000],
+  pfee:    [0.06, 0.07, 0.08, 0.09, 0.10, 0.10],
+  cont:    [0.05, 0.06, 0.07, 0.08, 0.09, 0.10]
+};
+const ACT = {
+  dj:      { name: 'DJ and sound', r: [18000, 30000, 50000, 85000, 150000, 260000] },
+  band:    { name: 'Live band', r: [60000, 90000, 150000, 280000, 500000, 900000] },
+  dhol:    { name: 'Dhol', r: [8000, 12000, 18000, 28000, 45000, 70000] },
+  anchor:  { name: 'Anchor', r: [12000, 20000, 40000, 70000, 120000, 200000] },
+  choreo:  { name: 'Choreographer', r: [25000, 40000, 70000, 120000, 200000, 350000] },
+  singer:  { name: 'Live singer', r: [30000, 45000, 80000, 150000, 280000, 500000] },
+  trad:    { name: 'Traditional musicians', r: [15000, 22000, 35000, 55000, 85000, 140000] },
+  folk:    { name: 'Folk performers', r: [20000, 30000, 50000, 90000, 150000, 250000] }
+};
+function actsFor(key, t, dest) {
+  const a = [];
+  switch (key) {
+    case 'sangeet': a.push('dj', 'anchor'); if (t >= 1) a.push('choreo'); if (t >= 4) a.push('band'); break;
+    case 'mehendi': if (t >= 1) a.push('dhol'); if (t >= 2) a.push('singer'); break;
+    case 'haldi': a.push('dhol'); break;
+    case 'cocktail': a.push('dj'); if (t >= 3) a.push('band'); break;
+    case 'welcome': if (dest && t >= 2) a.push('folk'); break;
+    case 'wedding': case 'muhurtham': case 'church': a.push('trad'); break;
+    case 'baraat': a.push('dhol'); if (t >= 2) a.push('band'); break;
+    case 'reception': a.push('dj'); if (t >= 2) a.push('anchor'); if (t >= 3) a.push('band'); break;
+    case 'engagement': if (t >= 1) a.push('dj'); break;
+    case 'nikah': case 'walima': if (t >= 3) a.push('singer'); break;
+    case 'pool': case 'afterparty': a.push('dj'); break;
+    case 'brunch': if (t >= 3) a.push('singer'); break;
+    default: break;
+  }
+  return a;
+}
+const VENUE_STYLE = {
+  any: { label: 'No preference', f: 1 }, hotel: { label: 'Hotel', f: 1 }, palace: { label: 'Palace or heritage', f: 1.45 },
+  resort: { label: 'Resort', f: 1.1 }, banquet: { label: 'Banquet or convention hall', f: 0.8 },
+  farmhouse: { label: 'Farmhouse', f: 0.9 }, lawn: { label: 'Open lawn', f: 0.85 }, beach: { label: 'Beach', f: 1.15 }
+};
+const SPREAD = {
+  venue: [0.8, 1.3], stay: [0.85, 1.25], food: [0.85, 1.2], bar: [0.8, 1.3], decor: [0.7, 1.45], production: [0.75, 1.35],
+  photo: [0.75, 1.4], ent: [0.7, 1.5], invites: [0.8, 1.3], hospitality: [0.75, 1.35], transport: [0.85, 1.2],
+  beauty: [0.75, 1.4], ceremonies: [0.8, 1.3], planner: [0.85, 1.2], fees: [0.8, 1.4], jewellery: [1, 1], outfits: [1, 1]
+};
+const CATS = {
+  venue: 'Venues', stay: 'Rooms and guest stay', food: 'Food and catering', bar: 'Bar', decor: 'Décor', production: 'Sound, light and power',
+  photo: 'Photography and video', ent: 'Entertainment', invites: 'Invitations and stationery', hospitality: 'Hospitality and gifting',
+  transport: 'Guest transport', beauty: 'Make-up, styling and mehendi', ceremonies: 'Ceremonies and rituals', planner: 'Wedding planning team',
+  fees: 'Permits and fees', contingency: 'Contingency', jewellery: 'Jewellery and outfits (in your budget)', outfits: 'Outfits (in your budget)'
+};
+// Priority chips -> engine categories
+const PRIO = {
+  venue: { label: 'Venue', cats: ['venue'] }, food: { label: 'Food', cats: ['food'] }, decor: { label: 'Décor', cats: ['decor'] },
+  photo: { label: 'Photography', cats: ['photo'] }, ent: { label: 'Entertainment', cats: ['ent'] },
+  invites: { label: 'Invitations', cats: ['invites'] }, stay: { label: 'Guest stay', cats: ['stay'] },
+  experience: { label: 'Guest experience', cats: ['hospitality', 'transport'] }
+};
+const BANDS = [
+  { lo: 300000, hi: 1000000, label: 'Under ₹10 lakh', step: 50000 },
+  { lo: 1000000, hi: 2000000, label: '₹10–20 lakh', step: 100000 },
+  { lo: 2000000, hi: 3500000, label: '₹20–35 lakh', step: 100000 },
+  { lo: 3500000, hi: 5000000, label: '₹35–50 lakh', step: 100000 },
+  { lo: 5000000, hi: 7500000, label: '₹50–75 lakh', step: 250000 },
+  { lo: 7500000, hi: 10000000, label: '₹75 lakh–1 crore', step: 250000 },
+  { lo: 10000000, hi: 15000000, label: '₹1–1.5 crore', step: 500000 },
+  { lo: 15000000, hi: 25000000, label: '₹1.5–2.5 crore', step: 1000000 },
+  { lo: 25000000, hi: 50000000, label: '₹2.5–5 crore', step: 2500000 },
+  { lo: 50000000, hi: 200000000, label: '₹5 crore+', step: 10000000 }
+];
+const PARAMS = { version: 'demo-2026.09', householdSize: 3, occupancy: 2, eventLoadBaseline: 2.375 };
+
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const rt = (arr, t) => { const i = Math.floor(t), f = t - i; return i >= arr.length - 1 ? arr[arr.length - 1] : arr[i] + (arr[i + 1] - arr[i]) * f; };
+const tn = t => TIERS[clamp(Math.round(t), 0, 5)];
+const round100 = n => Math.round(n / 100) * 100;
+
+/* ---------- Core calculation ---------- */
+function compute(inp) {
+  const d = DEST[inp.destId];
+  const ci = d.idx, ri = d.roomIdx;
+  const se = seasonOf(d, inp.month);
+  const sm = se.mult;
+  let wk = 1;
+  if (inp.date) { const dow = new Date(inp.date + 'T12:00:00').getDay(); if (dow === 0 || dow === 6 || dow === 5) wk = 1.05; }
+  const G = inp.guests;
+  const evs = (inp.events || []).filter(e => EV[e.key]);
+  const dest = inp.mode !== 'home';
+  const days = Math.max(1, ...evs.map(e => e.day));
+  const nights = days;
+  const staying = Math.round(G * (dest ? inp.stayShare : inp.outShare));
+  const personal = (inp.incJewellery ? (inp.jewelleryAmt || 0) : 0) + (inp.incOutfits ? (inp.outfitsAmt || 0) : 0);
+  const celebration = inp.budget ? Math.max(0, inp.budget - personal) : null;
+  let loadRaw = 0; evs.forEach(e => { loadRaw += e.share * EV[e.key].w; });
+  const load = Math.max(0.35, loadRaw / PARAMS.eventLoadBaseline);
+  const intensity = celebration != null ? celebration / (G * load * ci) : null;
+  let budgetTier = 2;
+  if (intensity != null) { budgetTier = 0; for (let i = 0; i < 6; i++) if (intensity >= TIER_MIN[i]) budgetTier = i; }
+  const st = STYLES.find(s => s.id === inp.style);
+  const baseTier = inp.forceTier != null ? inp.forceTier : (inp.style === 'fixed' && inp.fixedTier != null ? inp.fixedTier : (st && st.tier != null ? st.tier : budgetTier));
+  const adj = inp.catAdj || {};
+  const T = c => clamp(baseTier + (adj[c] || 0), 0, 5);
+  const vs = VENUE_STYLE[inp.venueStyle || 'any'];
+  const lines = [];
+  const add = (key, typ, trace, extra) => { if (typ > 0) lines.push(Object.assign({ key, name: CATS[key], typ: round100(typ), tier: T(key), trace }, extra || {})); };
+  const eg = e => Math.round(G * e.share);
+  const nm = e => e.name || EV[e.key].name;
+
+  // Venue
+  let venue = 0; const vt = [];
+  evs.forEach(e => {
+    const w = e.share <= 0.3 ? 0.4 : Math.min(1, EV[e.key].w);
+    const c = rt(R.venue, T('venue')) * w * ci * sm * wk * vs.f;
+    venue += c; vt.push(`${nm(e)}: ${fmtShort(c)}`);
+  });
+  add('venue', venue, [`${tn(T('venue'))} venue rate ${inr(rt(R.venue, T('venue')))} per main event, scaled by event size`, `${d.name} cost index ${ci} × ${se.label.toLowerCase()} ×${sm}${vs.f !== 1 ? ` × ${vs.label.toLowerCase()} ×${vs.f}` : ''}`, ...vt]);
+
+  // Rooms
+  let stayIdx = T('stay') * 0.8; // 0 = 3-star … 4 = palace
+  if (inp.venueStyle === 'palace' && dest) stayIdx = Math.max(stayIdx, 3);
+  const occ = inp.occupancy || PARAMS.occupancy;
+  const guestRooms = Math.ceil(staying / occ);
+  const famRooms = dest ? 4 + Math.ceil(G / 100) : (staying > 0 ? 2 : 1);
+  const crewRooms = dest ? 3 + T('stay') : 0;
+  const rooms = guestRooms + famRooms + crewRooms;
+  const roomRate = rt(R.room, stayIdx) * ri * sm * wk;
+  const stayLabel = ['3-star', '4-star', '5-star', 'luxury', 'palace'][Math.round(stayIdx)];
+  add('stay', rooms * nights * roomRate, [`${guestRooms} guest rooms (${staying} guests ÷ ${occ} per room) + ${famRooms} family rooms${crewRooms ? ` + ${crewRooms} crew rooms` : ''} = ${rooms} rooms`, `${rooms} rooms × ${nights} night${nights > 1 ? 's' : ''} × ${inr(roomRate)} (${stayLabel}, ${d.name}, ${se.label.toLowerCase()})`, 'Breakfast assumed included in the room rate']);
+
+  // Food
+  const dietF = { veg: 1, jain: 1.08, mixed: 1 + 0.2 * (inp.nonvegShare ?? 0.5), nonveg: 1.2 }[inp.diet || 'veg'];
+  const dietL = { veg: 'vegetarian', jain: 'Jain', mixed: 'mixed veg and non-veg', nonveg: 'mostly non-veg' }[inp.diet || 'veg'];
+  let food = 0; const ft = []; let meals = 0;
+  evs.forEach(e => {
+    const mf = MEAL_F[e.meal || EV[e.key].meal] ?? 0; if (!mf) return;
+    const g = eg(e); const rate = rt(R.plate, T('food')) * mf * dietF * ci;
+    let c = g * rate; if (T('food') >= 2 && (e.meal || EV[e.key].meal) === 'dinner') c *= 1.12;
+    food += c; meals += g; ft.push(`${nm(e)}: ${g} guests × ${inr(rate)} ${MEAL_LABEL[e.meal || EV[e.key].meal].toLowerCase()}${T('food') >= 2 && (e.meal || EV[e.key].meal) === 'dinner' ? ' + live counters' : ''}`);
+  });
+  add('food', food, [`${tn(T('food'))} menus, ${dietL} (×${dietF.toFixed(2)}), ${d.name} index ${ci}`, ...ft], { meals });
+
+  // Bar
+  if (inp.alcohol) {
+    let bar = 0; const bt = [];
+    evs.filter(e => BAR_KEYS.includes(e.key) && (!inp.barMainOnly || ['reception', 'cocktail'].includes(e.key))).forEach(e => {
+      const drinkers = Math.round(eg(e) * 0.5); const c = drinkers * rt(R.bar, T('food')) * ci + 15000 * ci;
+      bar += c; bt.push(`${nm(e)}: ${drinkers} guests × ${inr(rt(R.bar, T('food')) * ci)} + licence`);
+    });
+    add('bar', bar, ['Half of attending guests assumed to drink; state licence fee per event (demo)', ...bt]);
+  }
+
+  // Décor and production
+  const LV = { 1: 0.65, 2: 1, 3: 1.55 }; const LVN = { 1: 'simple', 2: 'elegant', 3: 'grand' };
+  let decor = 0, prod = 0; const dt = [];
+  evs.forEach(e => {
+    const out = e.setting === 'outdoor';
+    const c = rt(R.decor, T('decor')) * EV[e.key].dw * LV[e.decor || 2] * ci * sm * (out ? 1.1 : 1);
+    decor += c; dt.push(`${nm(e)}: ${LVN[e.decor || 2]}${out ? ', outdoor' : ''}, ${fmtShort(c)}`);
+    prod += rt(R.prod, T('decor')) * Math.min(1, EV[e.key].w) * ci * (out ? 1.2 : 1);
+  });
+  add('decor', decor, [`${tn(T('decor'))} décor base ${inr(rt(R.decor, T('decor')))} for a main event`, ...dt]);
+  add('production', prod, ['Stage, sound, lighting, power back-up; outdoor events add generators and weather cover']);
+
+  // Photography
+  const photo = rt(R.photo, T('photo')) * days * Math.sqrt(ci) * sm * (G > 400 ? 1.25 : 1) + rt(R.album, T('photo')) + (dest ? 30000 + T('photo') * 20000 : 0);
+  add('photo', photo, [`${tn(T('photo'))} team ${inr(rt(R.photo, T('photo')))} per day × ${days} day${days > 1 ? 's' : ''}${G > 400 ? ', larger team for 400+ guests' : ''}`, `Album and edits ${inr(rt(R.album, T('photo')))}${dest ? '; crew travel and stay included' : ''}`]);
+
+  // Entertainment
+  let ent = 0; const et = [];
+  evs.forEach(e => {
+    const acts = actsFor(e.key, Math.floor(T('ent') + 1e-9), dest); if (!acts.length) return;
+    const c = acts.reduce((s, a) => s + rt(ACT[a].r, T('ent')) * Math.sqrt(ci), 0);
+    ent += c; et.push(`${nm(e)}: ${acts.map(a => ACT[a].name.toLowerCase()).join(', ')}`);
+  });
+  add('ent', ent, et.length ? et : ['No entertainment added']);
+
+  // Invitations and stationery (King of Cards)
+  const hh = Math.ceil(G / (inp.hhSize || PARAMS.householdSize));
+  const ds = inp.inviteType === 'digital' ? 1 : (inp.digitalShare || 0);
+  const printedRaw = Math.round(hh * (1 - ds));
+  const printed = printedRaw > 0 ? Math.max(100, printedRaw) : 0; // King of Cards minimum order is 100 invitations
+  const tI = T('invites');
+  const printedCost = printed * rt(R.card, tI) * 1.1;
+  const digital = rt(R.digital, tI);
+  const stationery = (dest ? (guestRooms + famRooms) * rt(R.insert, tI) : 0) + evs.length * rt(R.signage, tI);
+  add('invites', printedCost + digital + stationery + hh * rt(R.tag, tI), [`${hh} households (${G} guests ÷ ${inp.hhSize || PARAMS.householdSize})`, `${printed} printed invitations${printed > printedRaw ? ' (King of Cards minimum order is 100)' : ''} × ${inr(rt(R.card, tI))} + 10% personalisation and envelopes`, `Digital invitation ${inr(digital)}`, `On-site stationery: ${dest ? 'welcome notes, itinerary cards and room inserts, ' : ''}menus and signage for ${evs.length} events`], { households: hh, printed, cardPrice: rt(R.card, tI) });
+
+  // Hospitality and gifting
+  const tH = T('hospitality');
+  const hampers = (staying > 0 ? guestRooms + famRooms : 0) * rt(R.hamper, tH);
+  const rgifts = hh * rt(R.rgift, tH);
+  const desk = dest ? days * rt(R.desk, tH) : 0;
+  add('hospitality', hampers + rgifts + desk, [`${staying > 0 ? guestRooms + famRooms : 0} welcome hampers × ${inr(rt(R.hamper, tH))}`, `${hh} return gifts × ${inr(rt(R.rgift, tH))}`, dest ? `Hospitality desk ${days} day${days > 1 ? 's' : ''} × ${inr(rt(R.desk, tH))}` : 'No hospitality desk for a home-city wedding']);
+
+  // Transport
+  const tT = T('transport');
+  const cap = tT >= 3 ? 3 : 12;
+  const tf = Math.pow(clamp(d.transfer / 45, 0.6, 3), 0.6);
+  const vehicles = Math.ceil(staying / cap);
+  const transfers = vehicles * 2 * rt(R.transfer, tT) * (dest ? tf : 0.6);
+  const shuttles = Math.ceil(staying / 45) * evs.length * R.bus * (dest ? 0.5 : 0.3) * ci;
+  const car = evs.some(e => EV[e.key].main) ? rt(R.car, tT) : 0;
+  add('transport', transfers + shuttles + car, [`${vehicles} ${cap === 3 ? 'cars' : 'tempo travellers'} × 2 trips (arrival and departure)${dest ? `, ${d.transfer}-minute transfer from ${d.airport}` : ''}`, `Event shuttles for staying guests across ${evs.length} events`, car ? `Couple's car ${inr(car)}` : '']
+    .filter(Boolean), { vehicles });
+
+  // Beauty
+  const tB = baseTier;
+  const major = evs.filter(e => EV[e.key].w >= 0.35).length;
+  const mehEv = evs.find(e => e.key === 'mehendi');
+  const beauty = major * rt(R.look, tB) + Math.min(12, 4 + tB) * Math.ceil(major * 0.6) * rt(R.fam, tB) + (mehEv ? eg(mehEv) * 0.35 * rt(R.meh, tB) + rt(R.bridemeh, tB) : 0);
+  add('beauty', beauty, [`Bride's look for ${major} events × ${inr(rt(R.look, tB))}`, `Family make-up for ${Math.min(12, 4 + tB)} people`, mehEv ? `Mehendi artists for about ${Math.round(eg(mehEv) * 0.35)} guests + bridal mehendi` : 'No mehendi event']);
+
+  // Ceremonies
+  const rit = evs.filter(e => EV[e.key].ritual);
+  add('ceremonies', rit.length * rt(R.ritual, baseTier) * Math.sqrt(ci), [`${rit.length} ceremon${rit.length === 1 ? 'y' : 'ies'} × ${inr(rt(R.ritual, baseTier))}: officiant, materials and set-up`]);
+
+  // Planner
+  if (inp.planner === 'yes') {
+    const managed = lines.filter(l => ['venue', 'food', 'decor', 'production', 'ent', 'transport', 'hospitality', 'bar'].includes(l.key)).reduce((s, l) => s + l.typ, 0);
+    const fee = Math.max(rt(R.minfee, baseTier), rt(R.pfee, baseTier) * managed);
+    add('planner', fee, [`Greater of ${inr(rt(R.minfee, baseTier))} minimum or ${Math.round(rt(R.pfee, baseTier) * 100)}% of managed spend (demo parameters)`]);
+  }
+
+  // Fees
+  const outdoor = evs.filter(e => e.setting === 'outdoor').length;
+  add('fees', evs.length * 5000 * ci + outdoor * 10000, [`Event permissions for ${evs.length} events`, outdoor ? `Sound permission for ${outdoor} outdoor event${outdoor > 1 ? 's' : ''}` : 'No outdoor events', 'Refundable venue deposit shown separately, not included']);
+
+  // Contingency
+  let cp = rt(R.cont, baseTier) + (dest ? 0.01 : 0) + (se.band === 'monsoon' ? 0.015 : 0) + (outdoor / Math.max(1, evs.length) > 0.5 ? 0.01 : 0);
+  const sub = { typ: 0, min: 0, max: 0 };
+  lines.forEach(l => { const s = SPREAD[l.key] || [0.85, 1.2]; l.min = round100(l.typ * s[0]); l.max = round100(l.typ * s[1]); sub.typ += l.typ; sub.min += l.min; sub.max += l.max; });
+  const cont = { key: 'contingency', name: CATS.contingency, typ: round100(sub.typ * cp), min: round100(sub.min * cp), max: round100(sub.max * cp), tier: baseTier, trace: [`${Math.round(cp * 100)}% of the estimate${dest ? ', higher for destination weddings' : ''}${se.band === 'monsoon' ? ' and monsoon dates' : ''}`] };
+  lines.push(cont);
+  const totals = { typ: sub.typ + cont.typ, min: sub.min + cont.min, max: sub.max + cont.max };
+
+  const personalLines = [];
+  if (inp.incJewellery && inp.jewelleryAmt) personalLines.push({ key: 'jewellery', name: CATS.jewellery, typ: inp.jewelleryAmt, min: inp.jewelleryAmt, max: inp.jewelleryAmt, trace: ['Your amount, set aside before planning the celebration'] });
+  if (inp.incOutfits && inp.outfitsAmt) personalLines.push({ key: 'outfits', name: CATS.outfits, typ: inp.outfitsAmt, min: inp.outfitsAmt, max: inp.outfitsAmt, trace: ['Your amount, set aside before planning the celebration'] });
+
+  const maxDecor = Math.max(1, ...evs.map(e => e.decor || 2));
+  const units = {
+    plate: meals ? food / meals : rt(R.plate, T('food')) * ci,
+    venueMain: rt(R.venue, T('venue')) * ci * sm * wk * vs.f,
+    decorMain: rt(R.decor, T('decor')) * LV[maxDecor] * ci * sm,
+    photoDay: rt(R.photo, T('photo')) * Math.sqrt(ci) * sm * (G > 400 ? 1.25 : 1),
+    look: rt(R.look, tB), bridemeh: rt(R.bridemeh, tB),
+    dj: rt(ACT.dj.r, T('ent')) * Math.sqrt(ci), choreo: rt(ACT.choreo.r, T('ent')) * Math.sqrt(ci),
+    ritual: rt(R.ritual, baseTier) * Math.sqrt(ci), room: roomRate
+  };
+  let state = null, gap = 0;
+  if (celebration != null) {
+    if (celebration >= totals.typ) state = 'comfortable';
+    else if (celebration >= totals.min) state = 'tight';
+    else if (celebration >= totals.min * 0.7) state = 'stretch';
+    else state = 'unrealistic';
+    gap = celebration - totals.typ;
+  }
+  return {
+    dest: d, season: se, days, nights, staying, rooms, guestRooms, famRooms, crewRooms, roomRate, stayLabel, households: hh, printed,
+    cardPrice: rt(R.card, tI), meals, vehicles, lines, personalLines, totals, personal, celebration, budget: inp.budget || null,
+    intensity, load, budgetTier, tier: baseTier, tierName: tn(baseTier), state, gap, deposit: round100(venue * 0.2),
+    catTier: Object.fromEntries(Object.keys(CATS).map(k => [k, T(k)])), paramsVersion: PARAMS.version, units
+  };
+}
+
+/* Priorities and fit.
+   1. Priority areas sit +0.75 of a style level above the rest; the "save" area sits one level below.
+   2. "Match my budget": solve (bisection) for the style level whose typical estimate uses about 97%
+      of the celebration budget, capped at one level above the spend class. Explicit styles are used as chosen. */
+function planWithPriorities(inp) {
+  const adj = Object.assign({}, inp.catAdj || {});
+  (inp.priorities || []).forEach(p => PRIO[p] && PRIO[p].cats.forEach(c => { adj[c] = (adj[c] || 0) + 0.75; }));
+  if (inp.save && PRIO[inp.save]) PRIO[inp.save].cats.forEach(c => { adj[c] = (adj[c] || 0) - 1; });
+  let cur = Object.assign({}, inp, { catAdj: adj, forceTier: null });
+  let plan = compute(cur);
+  let fit = null;
+  if ((inp.style || 'match') === 'match' && inp.budget) {
+    const classTier = plan.budgetTier;
+    const target = plan.celebration * 0.97;
+    const at = t => compute(Object.assign({}, cur, { forceTier: t }));
+    let hi = Math.min(5, classTier + 1), lo = 0, chosen;
+    if (at(hi).totals.typ <= target) chosen = hi;
+    else if (at(0).totals.typ > target) chosen = 0;
+    else { for (let i = 0; i < 14; i++) { const m = (lo + hi) / 2; if (at(m).totals.typ <= target) lo = m; else hi = m; } chosen = lo; }
+    chosen = Math.floor(chosen * 20) / 20;
+    cur = Object.assign({}, cur, { forceTier: chosen }); plan = at(chosen);
+    if (Math.round(chosen) < classTier) fit = { classTier, chosen, classNeed: at(classTier).totals.typ };
+  }
+  plan.priorityCats = (inp.priorities || []).map(p => ({ prio: p, label: PRIO[p].label, level: tn(plan.catTier[PRIO[p].cats[0]]) }));
+  plan.effInp = cur; plan.fit = fit;
+  return plan;
+}
+
+/* What a one-level upgrade of an area would cost (for "If you want to spend more"). */
+function upgradeOptions(plan) {
+  const out = [];
+  Object.keys(PRIO).forEach(p => {
+    const cats = PRIO[p].cats; if (cats.some(c => plan.catTier[c] >= 5)) return;
+    const v = JSON.parse(JSON.stringify(plan.effInp)); v.catAdj = v.catAdj || {};
+    cats.forEach(c => { v.catAdj[c] = (v.catAdj[c] || 0) + 1; });
+    const tp = compute(v); const delta = tp.totals.typ - plan.totals.typ;
+    if (delta > 0) out.push({ prio: p, label: PRIO[p].label, from: tn(plan.catTier[cats[0]]), to: tn(tp.catTier[cats[0]]), delta, inp: v });
+  });
+  return out.sort((a, b) => a.delta - b.delta);
+}
+
+/* Compromise ladder: engine re-runs each lever; never lowers a unit rate. */
+function compromises(inp, plan) {
+  const base = plan.totals.typ; const pr = new Set((inp.priorities || []).flatMap(p => PRIO[p].cats));
+  const L = [];
+  const tryL = (id, label, detail, touches, mod) => {
+    if (touches.some(c => pr.has(c))) return;
+    const v = mod(JSON.parse(JSON.stringify(plan.effInp || inp)));
+    if (!v) return;
+    const vp = compute(v); const saving = base - vp.totals.typ;
+    if (saving > base * 0.01) L.push({ id, label, detail, saving, mod });
+  };
+  const pre = ['mehendi', 'haldi', 'sangeet', 'welcome', 'engagement', 'cocktail', 'pool', 'brunch', 'roka', 'tilak'];
+  tryL('preshare', 'Invite fewer guests to pre-wedding events', 'Keep 60% of guests at pre-wedding events; everyone still attends the wedding and reception.', ['food'], v => { let ch = false; v.events.forEach(e => { if (pre.includes(e.key) && e.share > 0.6) { e.share = 0.6; ch = true; } }); return ch ? v : null; });
+  tryL('combine', 'Hold mehendi and haldi on the same day', 'A morning haldi and an afternoon mehendi share one day, saving a night of rooms and a day of crew.', [], v => {
+    const m = v.events.find(e => e.key === 'mehendi'), h = v.events.find(e => e.key === 'haldi');
+    if (!m || !h || m.day === h.day) return null; h.day = m.day; h.slot = 'Morning';
+    const used = [...new Set(v.events.map(e => e.day))].sort((a, b) => a - b); v.events.forEach(e => { e.day = used.indexOf(e.day) + 1; }); return v;
+  });
+  tryL('offseason', 'Move to a shoulder-season month', 'Shoulder-season dates cost less for venues, rooms and décor, with milder weather than the off-season.', [], v => {
+    const d = DEST[v.destId]; const cur = seasonOf(d, v.month).mult;
+    for (let k = 1; k <= 11; k++) { const m = ((v.month - 1 + k) % 12) + 1; const s = seasonOf(d, m); if (s.band === 'shoulder' && s.mult < cur) { if (m < v.month) v.year = (v.year || 2027) + 1; v.month = m; v.date = ''; return v; } }
+    return null;
+  });
+  tryL('occupancy', 'Three guests per room for friends and cousins', 'Share larger rooms for younger guests; family rooms stay as they are.', ['stay'], v => { if (v.mode === 'home' || (v.occupancy || 2) >= 3) return null; v.occupancy = 3; return v; });
+  tryL('decorlite', 'Lighter décor for pre-wedding events', 'Keep the wedding and reception as planned; simpler set-ups for the rest.', ['decor'], v => { let ch = false; v.events.forEach(e => { if (!EV[e.key].main && e.key !== 'reception' && (e.decor || 2) > 1) { e.decor = 1; ch = true; } }); return ch ? v : null; });
+  tryL('digital', 'Digital invitations for the outer circle', 'Send printed King of Cards invitations to close family and digital ones to 40% of households.', ['invites'], v => { if ((v.digitalShare || 0) >= 0.4 || v.inviteType === 'digital') return null; v.digitalShare = 0.4; return v; });
+  tryL('barmain', 'Serve the bar at the main evening events only', 'Keep drinks for the cocktail and reception.', ['food'], v => { if (!v.alcohol || v.barMainOnly) return null; v.barMainOnly = true; return v; });
+  tryL('style', 'A simpler style where you have not set priorities', 'Areas you did not mark as priorities move one level simpler.', [], v => {
+    const adj = v.catAdj || {}; Object.keys(CATS).forEach(c => { if (!pr.has(c)) adj[c] = (adj[c] || 0) - 1; }); v.catAdj = adj; return v;
+  });
+  tryL('guests', 'Trim the guest list by 15%', 'Every guest adds meals, rooms, transport and invitations.', [], v => { v.guests = Math.round(v.guests * 0.85); return v; });
+  return L.sort((a, b) => b.saving - a.saving).slice(0, 5);
+}
+
+/* Destination alternatives for comparison */
+function compareDestinations(inp, ids) {
+  return ids.map(id => { const v = Object.assign({}, inp, { destId: id, mode: 'destination' }); if (DEST[id].home && !DEST[id].dest) v.mode = 'destination'; return { d: DEST[id], plan: planWithPriorities(v) }; });
+}
+function suggestDestinations(inp, n, region) {
+  const all = DEST_LIST.filter(d => d.dest && d.id !== inp.destId && (!region || d.region === region));
+  const res = all.map(d => ({ d, plan: planWithPriorities(Object.assign({}, inp, { destId: d.id, mode: 'destination' })) })).filter(r => r.d.maxGuests >= inp.guests);
+  return res.sort((a, b) => a.plan.totals.typ - b.plan.totals.typ).slice(0, n || 3);
+}
+
+/* ---------- Formatting ---------- */
+function inr(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+function trimNum(s) { return s.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1'); }
+function amt(n) {
+  if (n == null || isNaN(n)) return '—';
+  const a = Math.abs(n), sign = n < 0 ? '−' : '';
+  if (a >= 1e7) return sign + '₹' + trimNum((a / 1e7).toFixed(2)) + ' crore';
+  if (a >= 1e5) return sign + '₹' + trimNum((a / 1e5).toFixed(1)) + ' lakh';
+  if (a >= 1000) return sign + '₹' + (Math.round(a / 1000) * 1000).toLocaleString('en-IN');
+  return sign + inr(a);
+}
+function fmtShort(n) {
+  if (n == null || isNaN(n)) return '—';
+  const a = Math.abs(n);
+  if (a >= 1e7) return '₹' + trimNum((a / 1e7).toFixed(2)) + 'Cr';
+  if (a >= 1e5) return '₹' + trimNum((a / 1e5).toFixed(1)) + 'L';
+  if (a >= 1000) return '₹' + trimNum((a / 1000).toFixed(0)) + 'k';
+  return inr(a);
+}
+
+/* ---------- Vendor shortlists ----------
+   Real businesses from public listings (WeddingWire, WeddingSutra, hotel sites, planner blogs), checked Sep 2026.
+   NOT verified or endorsed by King of Cards; prices and availability not checked.
+   t = [lowest, highest] style level a venue suits (approximate). In production this comes from the verified vendors table. */
+const VENUES = {
+  bengaluru: [['Palace Grounds', [1, 4], 'Several halls and lawns; suits very large guest lists'], ['The Tamarind Tree', [2, 4], 'Garden and heritage-style venue on the edge of the city'], ['ITC Gardenia', [3, 5], 'Luxury hotel with nine banquet halls'], ['JW Marriott Hotel Bengaluru', [3, 5], 'Indoor and outdoor venues for large receptions'], ['Four Seasons Hotel Bengaluru', [4, 5], 'Luxury hotel with an in-house wedding team']],
+  hyderabad: [['HICC (Hyderabad International Convention Centre)', [2, 4], 'Convention halls for very large weddings'], ['Ramoji Film City', [2, 5], 'Themed sets and large open venues'], ['Taj Krishna', [3, 4], 'Grand ballroom in Banjara Hills'], ['Taj Falaknuma Palace', [4, 5], 'Heritage palace; best for smaller luxury weddings']],
+  mysuru: [['Fortune JP Palace', [1, 3], 'City hotel with banquet space'], ['Silent Shores Resort & Spa', [2, 3], 'Resort on the edge of the city'], ['Radisson Blu Plaza Hotel Mysore', [2, 4], 'Ballroom for up to 1,200 guests plus a lawn; listed as renovating in 2026, so check dates'], ['Lalitha Mahal Palace Hotel', [3, 4], 'Heritage palace hotel']],
+  visakhapatnam: [['Vishwanadh Conventions', [0, 2], 'Convention venue in Akkayyapalem'], ['Fairfield by Marriott Visakhapatnam', [1, 3], 'Utsav hall seats about 450 for a banquet'], ['Novotel Visakhapatnam Varun Beach', [3, 4], 'Sea-facing hotel on the beach road'], ['Radisson Blu Resort Visakhapatnam', [3, 4], 'Beachside resort with an in-house wedding team']],
+  hubballi: [['Shubhodaya A/C Convention Hall, Dharwad', [0, 1], 'Convention hall for about 600 guests'], ['Hotel Metropolis', [0, 2], 'Moderately priced banquet hall, listed for 50–800 guests'], ['The President Hotel', [1, 2], 'Hotel banquets for 100–350 guests'], ['Fortune Park Airport Road Hubballi', [1, 3], 'Opposite the airport; listed for 50–600 guests'], ['Best Western Plus Narasapura', [1, 3], 'Listed for 15–1,000 guests']],
+  udaipur: [['Ramada Udaipur Resort & Spa', [1, 2], 'Resort with lawns, good value for Udaipur'], ['Radisson Blu Udaipur Palace Resort & Spa', [2, 3], 'Lakeside resort on Fateh Sagar'], ['Taj Aravali Resort & Spa', [3, 4], 'Resort in the Aravalli hills outside the city'], ['The Leela Palace Udaipur', [4, 5], 'Lakeside palace hotel on Lake Pichola'], ['The Oberoi Udaivilas', [5, 5], 'Ultra-luxury palace resort; smaller weddings']],
+  jaipur: [['Chokhi Dhani Resort', [1, 3], 'Village-themed resort with large lawns'], ['ITC Rajputana', [3, 4], 'Heritage-style hotel in the city centre'], ['Jai Mahal Palace', [4, 4], 'Palace hotel with Mughal gardens'], ['Fairmont Jaipur', [4, 5], 'Palace-style resort outside the city'], ['Rambagh Palace', [5, 5], 'The former royal residence; top-end luxury']],
+  jodhpur: [['Ajit Bhawan', [3, 4], 'Heritage palace hotel'], ['RAAS Jodhpur', [4, 5], 'Boutique hotel below Mehrangarh Fort'], ['Umaid Bhawan Palace', [5, 5], 'Palace hotel; among India’s most exclusive venues']],
+  goa: [['The Zuri White Sands', [2, 3], 'South Goa beach resort'], ['Reis Magos Fort', [2, 4], 'Restored 16th-century Portuguese fort'], ['Grand Hyatt Goa', [3, 4], '28 acres on Bambolim Bay with three wedding venues'], ['The Leela Goa', [4, 5], 'South Goa beach resort'], ['Taj Exotica Resort & Spa', [4, 5], 'Beachfront resort in Benaulim']],
+  kumarakom: [['The Zuri Kumarakom', [3, 3], 'Backwater resort on Vembanad Lake'], ['Kumarakom Lake Resort', [3, 4], 'Heritage-style backwater resort'], ['Taj Kumarakom Resort & Spa', [4, 4], 'Lakeside resort in a restored colonial estate']],
+  jaisalmer: [['Hotel Lal Garh Fort And Palace', [1, 2], 'Heritage-style hotel near Jaisalmer Fort'], ['Jaisalmer Marriott Resort & Spa', [3, 4], 'Sandstone resort; largest event room holds about 2,000'], ['The Serai', [4, 5], 'Luxury desert camp with 21 tents'], ['Suryagarh', [4, 5], 'Fort-style luxury hotel with courtyards and gardens']],
+  rishikesh: [['Lemon Tree Premier Rishikesh', [1, 2], 'City hotel near the river'], ['Aloha On The Ganges', [2, 3], 'Riverside resort'], ['The Roseate Ganges', [4, 5], 'Boutique luxury on the Ganga'], ['Taj Rishikesh Resort & Spa', [4, 5], 'Luxury resort in the hills above the river']],
+  corbett: [['Lemon Tree Premier Corbett', [1, 2], 'Good-value resort'], ['The Riverview Retreat', [2, 3], 'Resort on the banks of the Kosi'], ['Namah Resort Jim Corbett', [3, 4], 'Riverside resort with a ballroom and lawns'], ['Aahana Resort', [3, 4], '13.5 acres; 52 rooms and 5 pool villas'], ['Taj Corbett Resort & Spa', [4, 5], '75 rooms above the Kosi river']],
+  coorg: [['Club Mahindra Madikeri', [2, 3], 'Hill resort with valley views'], ['Taj Madikeri Resort & Spa', [4, 4], 'Rainforest resort'], ['Evolve Back Coorg', [4, 5], 'Luxury plantation resort']]
+};
+const PLANNERS = {
+  south: [['The Tales of Tradition', 'Bengaluru. Cross-cultural and South Indian weddings'], ['Wedlocks by Vima', 'Bengaluru. Full-service planning for over a decade'], ['Zzeeh', 'Bengaluru. Destination weddings around Bengaluru'], ['Crimson and Cherry', 'Bengaluru. Traditional and contemporary weddings'], ['Dottedi', 'Bengaluru. Plans weddings across South India']],
+  telugu: [['Akarshana Events & Entertainment', 'Hyderabad. Multi-day destination weddings'], ['RVR Eventz', 'Hyderabad. Boutique planning and décor'], ['The A-Cube Project', 'Wedding design and styling; has worked at Radisson Blu Visakhapatnam']],
+  national: [['MP Weddings by Motwane', 'Jaipur. Royal and palace weddings in Rajasthan'], ['The Wedding Design Company', 'Delhi. Luxury palace and destination weddings'], ['Devika Narain & Company', 'Delhi. Intimate, design-led weddings']]
+};
+const PHOTOGRAPHERS = {
+  south: [['House On The Clouds', 'Award-winning photography and films; Bengaluru'], ['Lightbucket Productions', 'Covers Bengaluru, Hyderabad, Mumbai, Delhi and Goa'], ['Weddings by Richie Films', 'Photography and videography'], ['Clickbugs', 'Bengaluru. Founded by Rajkumar Jeevaraj']],
+  telugu: [['Vows by Siddhu Soma', 'Hyderabad. Weddings since 2009, in India and abroad'], ['Vivid Saaga Photography', 'Hyderabad. Covers events across India'], ['Abhinav Sagar Photography', 'Hyderabad'], ['Lightbucket Productions', 'Covers Hyderabad and other metros']],
+  national: [['Stories by Joseph Radhik', 'Destination weddings across India'], ['The Wedding Salad', 'Destination weddings across India'], ['House On The Clouds', 'Travels for destination weddings'], ['Lightbucket Productions', 'Covers Goa and the major metros']]
+};
+const VENDOR_GROUP = { bengaluru: 'south', mysuru: 'south', hubballi: 'south', coorg: 'south', kumarakom: 'south', hyderabad: 'telugu', visakhapatnam: 'telugu', udaipur: 'national', jaipur: 'national', jodhpur: 'national', jaisalmer: 'national', goa: 'national', rishikesh: 'national', corbett: 'national' };
+function vendorsFor(plan) {
+  const id = plan.dest.id; const t = plan.tier;
+  const vs = (VENUES[id] || []).map(([n, r, note]) => ({ n, r, note, d: t < r[0] ? r[0] - t : t > r[1] ? t - r[1] : 0 }));
+  let venues = vs.filter(v => v.d <= 1.2).sort((a, b) => a.d - b.d).slice(0, 3);
+  const stretch = !venues.length; if (stretch) venues = vs.slice().sort((a, b) => a.d - b.d).slice(0, 2);
+  venues.sort((a, b) => a.r[0] - b.r[0]);
+  const g = VENDOR_GROUP[id] || 'national';
+  return { venues, planners: PLANNERS[g].slice(0, 3), photographers: PHOTOGRAPHERS[g].slice(0, 3), stretch, few: venues.length < 3 && t < 2 };
+}
+
+/* ---------- Fit the plan to the budget ----------
+   If the typical estimate is above the celebration budget, apply the gentlest changes first, one at a time,
+   until it fits. Never touches the couple's priorities. Guest count and date are never changed silently:
+   if it still does not fit, we report how many guests would fit and which destinations would. */
+const FIT_STEPS = [
+  { id: 'preshare', label: 'Invite 60% of guests to pre-wedding events', touches: ['food'], mod: v => { let c = false; v.events.forEach(e => { if (!EV[e.key].main && e.key !== 'reception' && e.share > 0.6) { e.share = 0.6; c = true; } }); return c && v; } },
+  { id: 'decorlite', label: 'Simpler décor for pre-wedding events', touches: ['decor'], mod: v => { let c = false; v.events.forEach(e => { if (!EV[e.key].main && e.key !== 'reception' && (e.decor || 2) > 1) { e.decor = 1; c = true; } }); return c && v; } },
+  { id: 'barmain', label: 'Bar at the cocktail and reception only', touches: ['food'], mod: v => (v.alcohol && !v.barMainOnly) ? Object.assign(v, { barMainOnly: true }) : null },
+  { id: 'digital', label: 'Digital invitations for the outer circle', touches: ['invites'], mod: v => (v.digitalShare || 0) < 0.4 ? Object.assign(v, { digitalShare: 0.4 }) : null },
+  { id: 'occupancy', label: 'Three guests per room for friends and cousins', touches: ['stay'], mod: v => (v.mode !== 'home' && (v.occupancy || 2) < 3) ? Object.assign(v, { occupancy: 3 }) : null },
+  { id: 'staying', label: 'Rooms for family and elders only (60% of guests)', touches: ['stay'], mod: v => (v.mode !== 'home' && v.stayShare > 0.6) ? Object.assign(v, { stayShare: 0.6 }) : null },
+  { id: 'combine', label: 'Haldi and mehendi on the same day', touches: [], mod: v => { const m = v.events.find(e => e.key === 'mehendi'), h = v.events.find(e => e.key === 'haldi'); if (!m || !h || m.day === h.day) return null; h.day = m.day; h.slot = 'Morning'; const used = [...new Set(v.events.map(e => e.day))].sort((a, b) => a - b); v.events.forEach(e => { e.day = used.indexOf(e.day) + 1; }); return v; } },
+  { id: 'dropextra', label: 'Skip the optional events (welcome dinner, cocktail, brunch)', touches: [], mod: v => { const opt = ['welcome', 'cocktail', 'pool', 'afterparty', 'brunch', 'bachelor']; const keep = v.events.filter(e => !opt.includes(e.key)); if (keep.length === v.events.length || keep.length < 2) return null; v.events = keep; return v; } }
+];
+function fitToBudget(inp) {
+  const raw = planWithPriorities(inp);
+  const out = { raw, plan: raw, inp, applied: [], fits: raw.celebration == null || raw.totals.typ <= raw.celebration };
+  if (out.fits) return out;
+  const pr = new Set((inp.priorities || []).flatMap(p => PRIO[p].cats));
+  let cur = JSON.parse(JSON.stringify(inp)), plan = raw;
+  for (const st of FIT_STEPS) {
+    if (plan.totals.typ <= plan.celebration) break;
+    if (st.touches.some(c => pr.has(c))) continue;
+    const v = st.mod(JSON.parse(JSON.stringify(cur))); if (!v) continue;
+    const p2 = planWithPriorities(v);
+    if (p2.totals.typ < plan.totals.typ - 1000) { out.applied.push({ id: st.id, label: st.label, saving: plan.totals.typ - p2.totals.typ }); cur = v; plan = p2; }
+  }
+  out.plan = plan; out.inp = cur; out.fits = plan.totals.typ <= plan.celebration;
+  if (!out.fits) {
+    let lo = 20, hi = cur.guests;
+    if (planWithPriorities(Object.assign({}, cur, { guests: lo })).totals.typ > plan.celebration) out.guestsFit = 0;
+    else { for (let i = 0; i < 12; i++) { const m = Math.round((lo + hi) / 2); if (planWithPriorities(Object.assign({}, cur, { guests: m })).totals.typ <= plan.celebration) lo = m; else hi = m; } out.guestsFit = Math.floor(lo / 10) * 10; }
+    if (inp.mode !== 'home') {
+      out.alts = DEST_LIST.filter(d => d.dest && d.id !== inp.destId && d.maxGuests >= inp.guests)
+        .map(d => ({ d, plan: planWithPriorities(Object.assign({}, cur, { destId: d.id, mode: 'destination' })) }))
+        .filter(r => r.plan.totals.typ <= r.plan.celebration).sort((a, b) => a.plan.totals.typ - b.plan.totals.typ).slice(0, 3);
+    }
+  }
+  return out;
+}
+
+if (typeof module !== 'undefined' && module.exports) module.exports = { fitToBudget, vendorsFor, planWithPriorities, compute, compromises, suggestDestinations, DEST, DEST_LIST, EV, TRADITIONS, amt, fmtShort, BANDS, TIERS, PRIO, STYLES };
+
+/* ==========================================================================
+   VENDOR DATABASE (prototype)
+   Real businesses with their publicly listed starting prices, collected 28 Sep 2026 from
+   WedMeGood listing pages (wedmegood.com/vendors/<city>/<category>), vendor profiles and vendor sites.
+   Listed prices are "starting from" figures, not quotes. Not verified or endorsed by King of Cards.
+   In production this becomes the vendors table (verified_at, source_url, price_min, price_unit, cities_served).
+
+   Fields: n = name, p = listed starting price (₹), u = price unit, a = area / note, r = [min,max] style level
+   when no price is listed (approximate, used for hotels/venues only).
+   Units: plate (veg per plate), day (photo + video per day), start (décor starting price per function),
+   fn (bridal make-up per function), bridal (bridal mehendi), event (per event), fee (planning fee),
+   ritual (per ceremony), rental (venue rental per function), dayhire (vehicle per day).
+   ========================================================================== */
+const SRC = { wmg: 'WedMeGood listing', site: 'Vendor website', hai: 'Hotel Association of India listing' };
+const VENDOR_DB = {
+  bengaluru: {
+    food: [
+      ['Srivatsanka Events and Services', 350, 'plate', 'Basavanagudi; up to 3,000 guests'], ['The BBQ Catering Company', 350, 'plate', 'Up to 1,500 guests; Users\u2019 Choice winner'],
+      ['A V Caterers', 399, 'plate', 'North Bangalore; 21 reviews'], ['Aashirwad Celebrations by Sujan Rao', 400, 'plate', 'North Bangalore'],
+      ['Heera Caterers', 450, 'plate', 'Up to 3,000 guests'], ['1947 Restaurant Hennur', 600, 'plate', 'Full-service catering, up to 2,500'],
+      ['Rajwadi Caterers Bangalore', 650, 'plate', 'HSR Layout; from 100 guests'], ['Herbs and Spices', 650, 'plate', 'Whitefield; 50–800 guests'],
+      ['Iyer Caterers', 800, 'plate', 'RT Nagar; up to 750 guests; travels for destination weddings'], ['Sri Lakshmi Caterers & Marriage Contractors', 900, 'plate', 'Indiranagar; multi-cuisine'],
+      ['Fiestaa Resort n Events Venue', 830, 'plate', 'Venue with in-house catering; veg ₹830, non-veg ₹1,250'], ['Vara The Pavilion', 1499, 'plate', 'Venue with in-house catering'],
+      ['The Leela Bhartiya City Bengaluru', 3000, 'plate', 'Luxury hotel; veg ₹3,000, non-veg ₹3,500'], ['Gayatri Vihar Sagar, Palace Grounds', 3500, 'plate', 'Lawn and banquet; 400–10,000 guests']
+    ],
+    venue: [
+      ['The Urvika', 80000, 'rental', 'Rental per function'], ['The Beginning', 250000, 'rental', 'Sarjapur Main Road'],
+      ['Diamond Pavilion by Jade', 300000, 'rental', 'Farmhouse with banquet; 100–1,500 guests'], ['Vara The Pavilion', 600000, 'rental', 'Floating mandap; 100–2,000 guests; 27 rooms'],
+      ['Gayatri Vihar Sagar, Palace Grounds', 3500, 'plate', 'Lawn and banquet at Palace Grounds; priced per plate'], ['The Tamarind Tree', 1600000, 'rental', 'Rustic heritage venue; 10–1,500 guests; 28 rooms'],
+      ['Amita Rasa', 1600000, 'rental', 'Nandi Hills; 300–800 guests']
+    ],
+    stay: [['Fiestaa Resort n Events Venue', null, 'level', '49 rooms on site', [1, 2]], ['Vara The Pavilion', null, 'level', '27 rooms on site', [2, 3]], ['JW Marriott Hotel Bengaluru', null, 'level', 'Central hotel', [3, 4]], ['ITC Gardenia', null, 'level', 'Luxury hotel', [3, 5]], ['The Leela Bhartiya City Bengaluru', null, 'level', '281 rooms', [4, 5]]],
+    photo: [
+      ['Yourimages', 15000, 'day', 'Indiranagar'], ['Artistic Pictures', 30000, 'day', '117 reviews; Users\u2019 Choice winner'], ['Trikona Studio', 30000, 'day', '17 reviews'],
+      ['Aikya Productions', 35000, 'day', '29 reviews'], ['Happy Weddings', 45000, 'day', '33 reviews'], ['Trufocus Photos', 50000, 'day', '19 reviews'],
+      ['WedNeo Photography', 50000, 'day', '91 reviews; also Hyderabad'], ['Weddings by Rajeev C Mohan', 50000, 'day', 'Users\u2019 Choice winner'],
+      ['Meragi Photography', 60000, 'day', '84 reviews'], ['Wedding Moments', 60000, 'day', '54 reviews'], ['AKV Photography', 60000, 'day', '39 reviews'],
+      ['Nuptial Diaries', 70000, 'day', '26 reviews'], ['Fog Media', 80000, 'day', 'Koramangala; 77 reviews'], ['Shishir Gaurav Photography', 80000, 'day', '68 reviews'],
+      ['The Wedding Fellas', 85000, 'day', '103 reviews'], ['Creative Chisel', 90000, 'day', '42 reviews'], ['More Than Red', 125000, 'day', '81 reviews'],
+      ['Talking Pictures Wedding Photography', 175000, 'day', '81 reviews; Users\u2019 Choice winner'], ['Vivek Krishnan Photography', 180000, 'day', '136 reviews'],
+      ['Salt & Pepper', 190000, 'day', '75 reviews'], ['Israni Photography', 250000, 'day', '138 reviews'], ['1plus1 Studio', 350000, 'day', 'Shot in 11 cities']
+    ],
+    decor: [
+      ['Saraaga Events', 15000, 'start', 'Vijayanagar'], ['Unique Events', 20000, 'start', '72 reviews'], ['Decor by Aditya', 30000, 'start', 'South Bangalore; 73 reviews'],
+      ['Pearls Wedding N Events', 35000, 'start', 'Saint Thomas Town'], ['Siri Weddings, Decor', 40000, 'start', 'Banashankari'], ['Glittering Arc', 50000, 'start', 'North Bangalore; 119 reviews'],
+      ['Trivera Collective', 50000, 'start', ''], ['Katha Weddings', 60000, 'start', ''], ['Kushaal Decoration', 60000, 'start', 'Marathahalli'],
+      ['Panigrahana Weddings, Decor', 75000, 'start', '141 reviews; Users\u2019 Choice winner'], ['Best Day Ever by Deepika Shetty', 75000, 'start', '32 reviews'],
+      ['Zzeeh Wedding Planners', 80000, 'start', '62 reviews; worked in 3 cities'], ['The Mogra Collective', 80000, 'start', 'Indiranagar'], ['Temple Bells Event Planners', 100000, 'start', ''],
+      ['Flinters Management', 100000, 'start', 'J P Nagar; 44 reviews'], ['Taarini Weddings', 160000, 'start', ''], ['PinQ Events', 200000, 'start', ''],
+      ['Wedding Tales', 300000, 'start', 'Indiranagar'], ['Aara Design', 500000, 'start', 'Koramangala']
+    ],
+    makeup: [
+      ['Makeup by Divya', 8000, 'fn', ''], ['Brides By Pooja Ghosh', 10000, 'fn', 'Freelance'], ['Kiran Mua', 11000, 'fn', 'Travels to venue'],
+      ['Shruthi Ashwath Makeup Artist', 11000, 'fn', ''], ['V2 Makeover', 15000, 'fn', 'South Bangalore'], ['Brides and Sides', 15000, 'fn', 'Whitefield'],
+      ['Face Sculptures by Shweta', 17000, 'fn', 'Studio'], ['Surbhi Varma Studio', 18000, 'fn', 'HD from ₹18,000; airbrush at venue ₹25,000', 'site'], ['Navila\u2019z Makeup Academy and Studio', 25000, 'fn', 'Travels to venue']
+    ],
+    mehendi: [
+      ['Mohan Mehndi Artist', 1499, 'bridal', ''], ['Shah Mehandi Arts', 1500, 'bridal', 'J P Nagar; 427 reviews'], ['Laxman Mehendi Artist', 1500, 'bridal', 'Indiranagar; 409 reviews'],
+      ['Professional Shah Mehandi Art', 1500, 'bridal', '528 reviews'], ['Aasma Bridal Mehendi Artist', 2000, 'bridal', ''], ['Suraj Mehandi Artist', 2500, 'bridal', 'Arekere; 196 reviews'],
+      ['Arun Mehandi', 4000, 'bridal', '210 reviews'], ['Elite Bridal Mehendi', 5000, 'bridal', 'Ulsoor'], ['Arthi\u2019s Mehndi', 5100, 'bridal', 'Indiranagar']
+    ],
+    dj: [
+      ['DJ Prafulla', 10000, 'event', 'Hosur Road'], ['DJ Manjoo', 15000, 'event', 'Vijayanagar'], ['DJ NY', 15000, 'event', 'Artist fee'],
+      ['DJ Shivam (Zerixton)', 16000, 'event', 'North Bangalore'], ['Dj Chinni', 25000, 'event', '3 hours; sound and lights extra'], ['DJ Freddie', 25000, 'event', ''],
+      ['DJ DKS', 30000, 'event', '22 reviews'], ['DJ Hemanth', 35000, 'event', '50 reviews; sound and lights extra'], ['Dj Jeff', 35000, 'event', '83 reviews']
+    ],
+    choreo: [['Pritesh Sharma Choreography', 5000, 'event', 'South Bangalore'], ['Taniya Dudani', 15000, 'event', ''], ['Nikitha Sharma', 25000, 'event', 'Vijayanagar'], ['Dance With Us Choreography', 50000, 'event', ''], ['Attitude Dance Academy', 100000, 'event', '']],
+    ceremonies: [['Pandit Sridhara', 8500, 'ritual', 'Whitefield'], ['SmartPuja (Hindi pandit, main wedding)', 11000, 'ritual', '₹11,000–13,000; 1 pandit', 'site'], ['SmartPuja (South Indian pandit, main wedding)', 14000, 'ritual', '₹14,000–16,000', 'site'], ['SmartPuja (2-day wedding rituals)', 34000, 'ritual', '₹34,000–36,000; 2 pandits', 'site']],
+    transport: [['Tejas Travels', 3500, 'dayhire', 'Tempo traveller, 8 hours / 80 km; ₹22/km outstation; 25+ years', 'site']],
+    planner: [
+      ['Guha Celebrations', 50000, 'fee', '₹50,000–1 lakh'], ['Vedic Weddings by Kanchan', 100000, 'fee', 'Also plans in Goa and Udaipur'], ['Panigrahana Wedding Planners', 200000, 'fee', '99 reviews'],
+      ['The Events Mafia', 200000, 'fee', 'BTM Layout; 45 reviews'], ['The Tales of Tradition', 200000, 'fee', 'Vajarahalli'], ['Aira Wedding Planners', 250000, 'fee', 'Koramangala; 62 reviews'],
+      ['Wedlock Weddings by Vima', 250000, 'fee', 'Koramangala; planned in 3 cities'], ['Crimson And Cherry', 250000, 'fee', '28 reviews'], ['Oh Yes Events', 250000, 'fee', '118 reviews'],
+      ['Bowtie Hospitality', 300000, 'fee', '162 reviews; Users\u2019 Choice winner'], ['Dreamstrokes', 300000, 'fee', 'North Bangalore; 66 reviews'], ['Bling It On', 400000, 'fee', '42 reviews'], ['Thea Events', 500000, 'fee', '']
+    ]
+  },
+  hyderabad: {
+    food: [['Manna Caterers', 250, 'plate', 'Secunderabad; 26 reviews'], ['Prasidh Caterers', 250, 'plate', 'Up to 25,000 guests'], ['Best Caterers', 300, 'plate', 'Kukatpally; non-veg from ₹450'], ['Hyd Events & Catering', 400, 'plate', 'Non-veg from ₹600'], ['Master\u2019s Professional Caterers', 600, 'plate', 'Abids'], ['Sree Caterers', 600, 'plate', ''], ['RK caterers', 800, 'plate', '22 reviews'], ['Foodlink Banquets & Catering', 800, 'plate', 'Non-veg from ₹1,200; up to 2,500 guests']],
+    venue: [['HICC (Hyderabad International Convention Centre)', null, 'level', 'Convention halls for very large weddings', [2, 4]], ['Ramoji Film City', null, 'level', 'Themed sets and open venues', [2, 5]], ['Taj Krishna', null, 'level', 'Grand ballroom, Banjara Hills', [3, 4]], ['Taj Falaknuma Palace', null, 'level', 'Heritage palace; smaller luxury weddings', [4, 5]]],
+    stay: [['Taj Krishna', null, 'level', 'Banjara Hills', [3, 4]], ['Novotel Hyderabad Convention Centre', null, 'level', 'Next to HICC', [2, 3]], ['Taj Falaknuma Palace', null, 'level', 'Palace hotel', [5, 5]]],
+    photo: [['Mythri Studios', 30000, 'day', 'Jubilee Hills'], ['Poetic Pixels', 29000, 'day', '40 reviews'], ['Pink Velvet Films and Photos', 36000, 'day', '79 reviews'], ['Kumarsphoto', 38000, 'day', 'Kukatpally; 67 reviews'], ['Bliss Photography', 40000, 'day', '43 reviews'], ['Vajra Photography Events', 45000, 'day', '173 reviews; Users\u2019 Choice winner'], ['Creative Kaptures', 45000, 'day', ''], ['WedNeo Photography', 50000, 'day', '91 reviews'], ['The WEDNIX Studios', 50000, 'day', 'Users\u2019 Choice winner'], ['Stills On Photography', 56000, 'day', '113 reviews'], ['Yellow Red Photography', 60000, 'day', 'Shot in 4 cities'], ['J Media Works', 65000, 'day', 'Banjara Hills'], ['Love Collective', 75000, 'day', 'Banjara Hills'], ['Artsylens', 80000, 'day', '338 reviews; Users\u2019 Choice winner'], ['Chayasutra', 80000, 'day', 'Jubilee Hills'], ['120framesfilms', 100000, 'day', '141 reviews'], ['The Bombay Brigade', 175000, 'day', '81 reviews'], ['What A Story', 200000, 'day', '140 reviews']],
+    decor: [['New Lotus Flower Decoration', 15000, 'start', 'Secunderabad; 34 reviews'], ['Sai Balaji Flower Decoration & Event Planner', 15000, 'start', 'New Nallakunta; 41 reviews'], ['Fancy Flowers Decoration', 20000, 'start', ''], ['Rokerz Events', 35000, 'start', 'Jubilee Hills'], ['Eventology', 50000, 'start', 'Secunderabad'], ['Happy Events', 75000, 'start', 'Himayatnagar; 90 reviews'], ['Panigrahana Weddings, Decor', 75000, 'start', '141 reviews'], ['Auspicious Flower Decor and Events', 80000, 'start', ''], ['Weddings By Tammali', 100000, 'start', 'Kukatpally'], ['Shaddi Ka Ladoo', 100000, 'start', '71 reviews'], ['Evento', 120000, 'start', 'Banjara Hills'], ['GR Events', 200000, 'start', 'Secunderabad'], ['Gold Feather Weddings', 460000, 'start', ''], ['Hashritha Design Company', 600000, 'start', 'Himayatnagar']],
+    makeup: [['Makeover by Rukmini Kiran', 8000, 'fn', '122 reviews; Users\u2019 Choice winner'], ['Mavel Beauty Salon', 8000, 'fn', 'Bowenpally'], ['Le\u2019Rouge Makeup Artistry', 10000, 'fn', '63 reviews'], ['Shilpa Makeup', 10000, 'fn', 'Banjara Hills'], ['Masarrat Jahaan MUA', 12000, 'fn', 'Secunderabad'], ['Mahesh Destination Makeover', 13000, 'fn', ''], ['Makeup by Vara', 18000, 'fn', '76 reviews'], ['Makeup by Tanny', 20000, 'fn', '123 reviews'], ['Siro Make-up Studio', 25000, 'fn', '62 reviews'], ['Makeup By Namreen', 25000, 'fn', '223 reviews'], ['Vandana Pandey Makeovers', 35000, 'fn', '174 reviews'], ['Makeup by Radhika Dave', 40000, 'fn', 'Begumpet'], ['Jai makeup artist', 50000, 'fn', '121 reviews'], ['Make-up by Afsha Rangila', 70000, 'fn', 'Abids']],
+    mehendi: [['Krishna Mehndi Art Hyderabad', 1500, 'bridal', 'Gachibowli; 172 reviews']],
+    planner: [['Akarshana Events & Entertainment', null, 'fee', 'Multi-day destination weddings; fee on request'], ['RVR Eventz', null, 'fee', 'Boutique planning and décor; fee on request']]
+  },
+  jaipur: {
+    venue: [['Chokhi Dhani Resort', null, 'level', 'Village-themed resort with lawns', [1, 3]], ['ITC Rajputana', null, 'level', 'City-centre hotel', [3, 4]], ['Jai Mahal Palace', null, 'level', 'Palace hotel', [4, 4]], ['Fairmont Jaipur', null, 'level', 'Palace-style resort', [4, 5]], ['Rambagh Palace', null, 'level', 'Former royal residence', [5, 5]]],
+    photo: [['Morning Star Films', 15000, 'day', ''], ['Apna Studio', 30000, 'day', 'Gopalpura'], ['Kanika Photography', 35000, 'day', '57 reviews'], ['The Snap Souls', 40000, 'day', '32 reviews'], ['Wedding Tellers', 55000, 'day', '73 reviews'], ['DK Creative Vision', 60000, 'day', ''], ['Speaking Shutter', 70000, 'day', '86 reviews'], ['Pratham Photowala', 70000, 'day', '58 reviews'], ['Sunny Rajwani Photography', 75000, 'day', '63 reviews'], ['The Candid House', 95000, 'day', '372 reviews'], ['Jaipur Wedding Company', 110000, 'day', ''], ['Picture Visual', 120000, 'day', '213 reviews'], ['Vogueshaire', 160000, 'day', '144 reviews']],
+    makeup: [['Raksha Pareek Makeup Artist', 10000, 'fn', '69 reviews'], ['Kanishka Makeup Artist', 18000, 'fn', '115 reviews'], ['Universh Makeup', 18000, 'fn', 'Vaishali Nagar']],
+    mehendi: [['Suraj Mehandi Artist, Jaipur', 5100, 'bridal', 'Johari Bazaar; 64 reviews']],
+    planner: [['Anhancing Dreams', 400000, 'fee', 'Hasanpura; 45 reviews']]
+  },
+  jodhpur: {
+    photo: [['The Picture Patchhh', 45000, 'day', '35 reviews'], ['Velin Films', 45000, 'day', 'Shot in 4 cities'], ['Lalit Khatri Photography', 50000, 'day', '28 reviews'], ['MS-Production Udaipur', 80000, 'day', ''], ['Hinglaj Editing Studio', 90000, 'day', ''], ['Weddshooter', 245000, 'day', ''], ['Rfm Wedding Photography', 250000, 'day', '']]
+  },
+  udaipur: {
+    decor: [['Vedic Weddings by Kanchan, Decor', 45000, 'start', ''], ['Karni Rentals And Events', 75000, 'start', ''], ['Bhadra Wedding Decor', 80000, 'start', 'Worked in 5 cities'], ['Rivaaz Events, Decor', 80000, 'start', ''], ['Decor Planners', 200000, 'start', 'Udaipur and Goa'], ['WedWingz Events', 200000, 'start', ''], ['RK Events Group, Decor', 240000, 'start', ''], ['Royal Wedding in Rajasthan', 250000, 'start', ''], ['A Royal Affair', 300000, 'start', 'Destination weddings'], ['The Wed Spark', 400000, 'start', '']],
+    planner: [['Vedic Weddings by Kanchan', 100000, 'fee', '29 reviews'], ['Golden Leaf Weddings', 200000, 'fee', '97 reviews'], ['Shaadi Prabandh', 200000, 'fee', '50 reviews'], ['Parbliss Events', 250000, 'fee', '175 reviews'], ['The Shadi Vibes', 300000, 'fee', '170 reviews'], ['Banna Baisa Wedding Planner', 350000, 'fee', '140 reviews; Users\u2019 Choice winner'], ['One World United', 600000, 'fee', '25 reviews']],
+    photo: [['MS-Production Udaipur', 80000, 'day', '']]
+  },
+  goa: {
+    venue: [['Taj Cidade De Goa Heritage', 2500, 'plate', 'Priced per plate']],
+    decor: [['2Cre8memories, Decor', 100000, 'start', 'North Goa'], ['Decor Planners', 200000, 'start', 'Udaipur and Goa']],
+    choreo: [['KMDC', 30000, 'event', ''], ['The Choreo Crafters', 40000, 'event', ''], ['SIPA Dancing School', 45000, 'event', ''], ['Ashu Yadav', 60000, 'event', '']],
+    dj: [['Dj Saunyk', 90000, 'event', 'Panjim']],
+    planner: [['Vedic Weddings by Kanchan', 100000, 'fee', '42 reviews'], ['Kaistal Events', 150000, 'fee', 'South Goa; Users\u2019 Choice winner'], ['Cube Art', 150000, 'fee', '57 reviews'], ['Awayddings', 150000, 'fee', ''], ['Events By Marketd', 175000, 'fee', 'Panjim'], ['Panigrahana Wedding Planners', 200000, 'fee', '99 reviews'], ['Shaadiwalee', 200000, 'fee', '156 reviews'], ['The Perfect Knot', 200000, 'fee', 'Users\u2019 Choice winner'], ['Sharda Weddings', 250000, 'fee', '323 reviews'], ['The Wedding Tantra', 250000, 'fee', 'Margao'], ['Bowtie Hospitality', 300000, 'fee', '156 reviews'], ['Destiny Tales', 400000, 'fee', ''], ['Wedding Works', 500000, 'fee', ''], ['Classique Events', 600000, 'fee', '162 reviews']]
+  },
+  delhi: {
+    food: [['Lick Sip Dip', 1200, 'plate', 'Tilak Nagar, Delhi NCR']],
+    photo: [['The Story Tailors', 40000, 'day', 'Near IGI airport, Gurgaon']],
+    makeup: [['Makeuploungebyjo', 15000, 'fn', 'Palam Vihar, Gurgaon'], ['Sonal Ashish Jaiswal', 25000, 'fn', 'Golf Course Road, Gurgaon']],
+    dj: [['DJ Nush', 45000, 'event', 'Kalkaji'], ['Mr. Bern', 50000, 'event', 'Aya Nagar']],
+    planner: [['Madhaniya Events', 200000, 'fee', 'Central Delhi; 91 reviews'], ['Weddings By Evensia', 300000, 'fee', 'Saket; 105 reviews']]
+  },
+  corbett: { makeup: [['Avneet Kamra', 30000, 'fn', 'Jim Corbett; 273 reviews; Users\u2019 Choice winner']], planner: [['Petal Drops Wedding Studio', null, 'fee', 'Jim Corbett; fee on request']] }
+};
+// Destination -> vendor hubs, nearest first. Vendors from a hub outside the city are marked "travels from".
+const VENDOR_HUBS = {
+  bengaluru: ['bengaluru'], mysuru: ['bengaluru'], hubballi: ['bengaluru'], coorg: ['bengaluru'], kumarakom: ['bengaluru'],
+  hyderabad: ['hyderabad'], visakhapatnam: ['hyderabad'],
+  jaipur: ['jaipur'], jodhpur: ['jodhpur', 'jaipur'], jaisalmer: ['jodhpur', 'jaipur'], udaipur: ['udaipur', 'jaipur'],
+  goa: ['goa', 'bengaluru'], rishikesh: ['delhi'], corbett: ['corbett', 'delhi']
+};
+const HUB_NAME = { bengaluru: 'Bengaluru', hyderabad: 'Hyderabad', jaipur: 'Jaipur', jodhpur: 'Jodhpur', udaipur: 'Udaipur', goa: 'Goa', delhi: 'Delhi NCR', corbett: 'Jim Corbett' };
+
+/* Minimal PDF writer: A4 pages, Helvetica / Helvetica-Bold (WinAnsi), text, wrapped paragraphs,
+   simple tables and rules. No external libraries, so the download works offline. */
+const PDFW = (function () {
+  const W = 595.28, H = 841.89, M = 44;
+  const clean = s => String(s == null ? '' : s)
+    .replace(/₹\s?/g, 'Rs ').replace(/[\u2013\u2014]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
+    .replace(/\u2026/g, '...').replace(/\u00A0/g, ' ').replace(/[^\x20-\x7E\u00A0-\u00FF]/g, '');
+  const esc = s => clean(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  const cw = size => size * 0.5; // average Helvetica glyph width
+  function wrap(text, size, width) {
+    const words = clean(text).split(/\s+/); const lines = []; let cur = '';
+    const max = Math.max(8, Math.floor(width / cw(size)));
+    words.forEach(w => { if ((cur + ' ' + w).trim().length > max) { if (cur) lines.push(cur); cur = w; } else cur = (cur + ' ' + w).trim(); });
+    if (cur) lines.push(cur); return lines.length ? lines : [''];
+  }
+  function build(blocks) {
+    const pages = []; let ops = []; let y = H - M;
+    const newPage = () => { if (ops.length) pages.push(ops.join('\n')); ops = []; y = H - M; };
+    const need = h => { if (y - h < M + 20) newPage(); };
+    const text = (x, yy, s, size, bold, color) => { ops.push(`BT ${color || '0.11 0.16 0.15'} rg /${bold ? 'F2' : 'F1'} ${size} Tf ${x.toFixed(2)} ${yy.toFixed(2)} Td (${esc(s)}) Tj ET`); };
+    const rule = (yy, c) => ops.push(`${c || '0.84 0.87 0.86'} RG 0.6 w ${M} ${yy.toFixed(2)} m ${(W - M).toFixed(2)} ${yy.toFixed(2)} l S`);
+    blocks.forEach(b => {
+      if (b.t === 'title') { need(40); text(M, y - 22, b.s, 20, true, '0.055 0.29 0.278'); y -= 32; }
+      else if (b.t === 'h') { need(34); y -= 8; text(M, y - 13, b.s, 13, true, '0.055 0.29 0.278'); y -= 20; rule(y + 2); y -= 4; }
+      else if (b.t === 'sub') { need(20); text(M, y - 11, b.s, 10.5, true); y -= 16; }
+      else if (b.t === 'p') { const size = b.size || 9.5; wrap(b.s, size, W - 2 * M).forEach(l => { need(size + 4); text(M, y - size, l, size, b.bold, b.color); y -= size + 3.5; }); y -= 3; }
+      else if (b.t === 'row') {
+        const size = b.size || 9.5; const cols = b.cols; const xs = b.xs; const widths = xs.map((x, i) => (i < xs.length - 1 ? xs[i + 1] : W - M) - x - 6);
+        const wrapped = cols.map((c, i) => wrap(c, size, widths[i]));
+        const h = Math.max(...wrapped.map(w => w.length)) * (size + 3) + 4; need(h);
+        wrapped.forEach((ls, i) => ls.forEach((l, k) => text(xs[i], y - size - k * (size + 3), l, size, b.bold)));
+        y -= h; if (b.line) rule(y + 2);
+      }
+      else if (b.t === 'gap') { y -= b.h || 8; }
+    });
+    newPage();
+    const objs = [];
+    objs[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+    objs[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+    objs[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+    const kids = [];
+    pages.forEach((content, i) => {
+      const footer = `BT 0.45 0.5 0.5 rg /F1 8 Tf ${M} 24 Td (${esc('King of Cards Wedding Planner  |  kingofcards.in  |  Estimates are planning ranges, not quotes.  |  Page ' + (i + 1) + ' of ' + pages.length)}) Tj ET`;
+      const stream = content + '\n' + footer;
+      const pid = 5 + i * 2, cid = 6 + i * 2; kids.push(pid + ' 0 R');
+      objs[pid] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${cid} 0 R >>`;
+      objs[cid] = `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`;
+    });
+    objs[2] = `<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${pages.length} >>`;
+    let out = '%PDF-1.4\n'; const offs = [];
+    for (let i = 1; i < objs.length; i++) { offs[i] = out.length; out += `${i} 0 obj\n${objs[i]}\nendobj\n`; }
+    const xref = out.length;
+    out += `xref\n0 ${objs.length}\n0000000000 65535 f \n` + offs.slice(1).map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+    out += `trailer\n<< /Size ${objs.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    const bytes = new Uint8Array(out.length); for (let i = 0; i < out.length; i++) bytes[i] = out.charCodeAt(i) & 255;
+    return bytes;
+  }
+  return { build, clean, W, M };
+})();
+
+</script>
+<script src="otp.js"></script>
+<script id="ui">
+/* ==========================================================================
+   KING OF CARDS AI WEDDING PLANNER — FRONT-END PROTOTYPE v2 (vanilla JS)
+   landing -> planner (6 steps) -> results (budget, vendors, schedule, invitations, chat)
+   Chat replies are scripted here; in production they come from Claude via POST /ai/chat.
+   ========================================================================== */
+(function () {
+'use strict';
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const STEPS = ['Where and when', 'Guests', 'Events', 'Food', 'Budget', 'Priorities', 'Your details'];
+const TODAY = new Date(); TODAY.setHours(12, 0, 0, 0);
+const KOC = 'https://kingofcards.in';
+const COLL = {
+  shelves: [
+    { max: 5, label: 'Under ₹5 per card', url: '/collections/under-rs-5' }, { max: 10, label: '₹5–10 per card', url: '/collections/from-rs-5-to-rs-10' },
+    { max: 20, label: '₹10–20 per card', url: '/collections/from-rs-10-to-rs-20' }, { max: 30, label: '₹20–30 per card', url: '/collections/from-rs-20-to-rs-30' },
+    { max: 40, label: '₹30–40 per card', url: '/collections/from-rs-30-to-rs-40' }, { max: 70, label: '₹40–70 per card', url: '/collections/from-rs-40-to-rs-70' },
+    { max: 100, label: '₹70–100 per card', url: '/collections/from-rs-70-to-rs-100' }, { max: 400, label: 'Above ₹100 per card', url: '/collections/above-rs-100' },
+    { max: 1200, label: 'Premium invitations', url: '/collections/premium-invitation-cards-high-end-designs' }, { max: 1e9, label: 'Luxe invitation boxes', url: '/collections/luxury-invitation-boxes' }
+  ],
+  religion: { hindu: ['Hindu invitations', '/collections/hindu-wedding-invitation-cards'], muslim: ['Muslim invitations', '/collections/muslim-wedding-invitation-cards'], christian: ['Christian invitations', '/collections/christian-wedding-invitation-cards'], interfaith: ['Interfaith invitations', '/collections/interfaith-wedding-invitation-cards'] },
+  types: [['Single-sheet invitations', '/collections/single-sheet-invitation-cards', 'Clean and affordable'], ['Laser-cut invitations', '/collections/laser-cut-wedding-invitation-cards', 'Fine cut patterns and arches'], ['Padded invitations', '/collections/padding-wedding-invitation-cards', 'Cushioned covers, embossed detail'], ['Premium invitations', '/collections/premium-invitation-cards-high-end-designs', 'Heavier boards, layered inserts'], ['Luxe invitation boxes', '/collections/luxury-invitation-boxes', 'Boxed sets with keepsakes']],
+  palace: ['Palace theme', '/collections/palace-wedding-invitation-cards-royal-grandeur-designs', 'Suits a palace or heritage venue'],
+  floral: ['Floral theme', '/collections/floral-wedding-cards', 'A theme that suits most venues']
+};
+const PRICE_LEVEL = ['Budget-friendly', 'Budget-friendly', 'Mid-range', 'Upscale', 'Luxury', 'Ultra-luxury'];
+
+/* ---------------- State ---------------- */
+let UID = 1;
+function defaults() {
+  return { mode: null, homeCity: '', destId: '', region: null, month: null, year: null, date: '', guests: 250, stayShare: 0.85, outShare: 0.15,
+    traditions: [], events: [], eventsKey: null, eventsEdited: false, diet: null, nonvegShare: 0.5, alcohol: null, budget: null, band: null,
+    incJewellery: false, jewelleryAmt: 0, priorities: [], style: 'match', venueStyle: 'any', inviteType: 'printed', digitalShare: 0,
+    fullname: '', phone: '', email: '', role: '', consentPlan: false, consentMkt: false };
+}
+const S = { view: 'landing', step: 0, maxStep: 0, inp: defaults(), fit: null, showRaw: false, errors: {}, editEvent: null, openLine: null,
+  lead: null, verifiedPhone: null, short: {}, open: new Set(), modal: null, chosenBy: null, msumOpen: false, addCustom: false, suggested: null };
+
+/* ---------------- Analytics: GA4 via the store's GTM dataLayer ---------------- */
+window.dataLayer = window.dataLayer || [];
+function track(event, params) { window.dataLayer.push(Object.assign({ event }, params || {})); }
+
+/* ---------------- Persistence (per-viewer convenience only) ---------------- */
+const KEY = 'kocPlanner.v4';
+function persist() { try { localStorage.setItem(KEY, JSON.stringify({ inp: S.inp, step: S.step, maxStep: S.maxStep, view: S.view === 'results' ? 'results' : 'planner', short: S.short, lead: S.lead, verifiedPhone: S.verifiedPhone })); } catch (e) { } }
+function restore() { try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+
+/* ---------------- Helpers ---------------- */
+const dest = () => DEST[S.inp.destId];
+const plan = () => (S.showRaw ? S.fit.raw : S.fit.plan);
+function monthList() { const out = []; let y = TODAY.getFullYear(), m = TODAY.getMonth() + 2; for (let i = 0; i < 18; i++) { if (m > 12) { m = 1; y++; } out.push({ m, y }); m++; } return out; }
+const daysIn = (m, y) => new Date(y, m, 0).getDate();
+const isoOf = (y, m, d) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+function datesText(inp, days) {
+  if (!inp.month) return '—';
+  if (!inp.date) return `${MONTHS[inp.month - 1]} ${inp.year}`;
+  const s = new Date(inp.date + 'T12:00:00'); const e = new Date(s); e.setDate(s.getDate() + Math.max(0, days - 1));
+  if (days <= 1) return `${s.getDate()} ${MONTHS[s.getMonth()]} ${s.getFullYear()}`;
+  if (s.getMonth() === e.getMonth()) return `${s.getDate()}–${e.getDate()} ${MONTHS[s.getMonth()]} ${s.getFullYear()}`;
+  return `${s.getDate()} ${MONTHS[s.getMonth()].slice(0, 3)} – ${e.getDate()} ${MONTHS[e.getMonth()].slice(0, 3)} ${e.getFullYear()}`;
+}
+const daysOf = inp => Math.max(1, ...(inp.events.length ? inp.events.map(e => e.day) : [1]));
+const bandOf = v => BANDS.findIndex(b => v >= b.lo && v < b.hi);
+const kocShelf = price => COLL.shelves.find(s => price <= s.max);
+function mkEvent(key, day, name) { const ev = EV[key]; return { uid: UID++, key, day, name: name || ev.name, share: ev.share, meal: ev.meal, slot: ev.slot, setting: 'indoor', decor: key === 'haldi' ? 1 : (ev.main || key === 'reception' ? 3 : 2) }; }
+function buildEvents(inp) {
+  const tr = inp.traditions.length ? inp.traditions : ['other']; const list = []; const seen = new Set();
+  tr.forEach(tid => { TRADITIONS.find(x => x.id === tid).ev.forEach(([k, d, n]) => { if (seen.has(k)) return; seen.add(k); list.push(mkEvent(k, d, n)); }); });
+  if (inp.mode !== 'home' && !seen.has('welcome')) list.unshift(mkEvent('welcome', 1));
+  return list;
+}
+const slotOrder = { Morning: 0, Afternoon: 1, Evening: 2, Night: 3 };
+const sortEvents = evs => evs.slice().sort((a, b) => a.day - b.day || slotOrder[a.slot] - slotOrder[b.slot]);
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+const gsearch = q => 'https://www.google.com/search?q=' + encodeURIComponent(q);
+function recalc(reason) { S.fit = fitToBudget(S.inp); S.showRaw = false; persist(); if (reason) track('plan_recalculated', { reason, total_typical: S.fit.plan.totals.typ, fits: S.fit.fits }); }
+
+/* ======================== LANDING ======================== */
+function renderLanding() {
+  const saved = restore();
+  app.innerHTML = `
+  <section class="hero"><div class="wrap">
+    <div>
+      ${saved && saved.inp && saved.inp.mode ? `<div class="resume"><span>You have a wedding plan in progress.</span><button class="btn sm" data-a="resume">Continue my plan</button><button class="linkbtn" data-a="fresh">Start again</button></div>` : ''}
+      <h1>Plan your entire wedding in minutes</h1>
+      <p class="lead">Tell us where, when, how many guests and your budget. We'll build a plan that fits it, with caterers, decorators, photographers, make-up artists and more for every part of your wedding, matched to what you can spend.</p>
+      <div class="cta-row"><button class="btn" data-a="start">Plan my wedding</button></div>
+      <p class="trust">Free and about three minutes. Download your plan as a PDF or share it on WhatsApp.<br>Powered by King of Cards, trusted by 40,000+ families across 13 stores.</p>
+    </div>
+    <div class="arch"><div class="arch-inner">
+      <ol class="steps3 stacked">
+        <li><h3>Tell us about your wedding</h3><p class="muted">City or destination, month, guests and events.</p></li>
+        <li><h3>Set your budget</h3><p class="muted">We fit the plan to it and tell you honestly if it can't be done.</p></li>
+        <li><h3>Pick your vendors</h3><p class="muted">Every cost comes with vendors that fit it. Shortlist them, then download or share your plan.</p></li>
+      </ol>
+    </div></div>
+  </div></section>`;
+}
+
+/* ======================== PLANNER ======================== */
+function renderPlanner(focus) {
+  app.innerHTML = `
+  <div class="msum">${mobileSummary()}</div>
+  <section class="planner"><div class="wrap">
+    <nav class="progress" aria-label="Planner progress"><ol style="grid-template-columns:repeat(${STEPS.length},1fr)">${STEPS.map((s, k) => `<li class="${k < S.step ? 'done' : k === S.step ? 'now' : ''}"><button type="button" data-a="goto" data-step="${k}" ${k > S.maxStep ? 'disabled' : ''} aria-current="${k === S.step ? 'step' : 'false'}"><span class="bar"></span><span class="lbl">${k + 1}. ${s}</span></button></li>`).join('')}</ol></nav>
+    <div><div class="stepcard" id="stepForm">
+      <p class="kicker">Step ${S.step + 1} of ${STEPS.length}</p>
+      ${stepHTML()}
+      ${Object.keys(S.errors).length ? `<p class="err navErr" role="alert">To continue: ${esc(Object.values(S.errors).join(' '))}</p>` : ''}
+      <div class="navrow">${S.step > 0 ? '<button type="button" class="btn quiet" data-a="back">Back</button>' : '<button type="button" class="btn quiet" data-a="home">Cancel</button>'}
+        <button type="button" class="btn" data-a="next">${S.step === STEPS.length - 1 ? 'Submit and see my plan' : 'Continue'}</button></div>
+    </div></div>
+    <aside class="summary arch" aria-live="polite"><div class="arch-inner" id="summary">${summaryHTML()}</div></aside>
+  </div></section>`;
+  if (focus) { const h = app.querySelector('.stepcard h2'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } }
+}
+function liveFit() { const i = S.inp; if (!i.destId || !i.month || !i.events.length) return null; try { return fitToBudget(Object.assign(clone(i), { diet: i.diet || 'veg', alcohol: !!i.alcohol })); } catch (e) { return null; } }
+function summaryRows() { const i = S.inp, d = dest(); return [['Where', d ? d.name : (i.mode === 'unsure' ? 'We\'ll suggest' : '—')], ['When', datesText(i, daysOf(i))], ['Guests', S.maxStep >= 1 ? i.guests : '—'], ['Events', i.events.length || '—'], ['Budget', i.budget ? fmtShort(i.budget) : '—']]; }
+function summaryHTML() {
+  const f = liveFit();
+  return `<h3>Your wedding</h3><dl>${summaryRows().map(([k, v]) => `<div class="sr-row"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+  ${f ? `<div class="est"><div class="l">${S.inp.budget ? 'Plan estimate' : 'Estimate so far'}</div><div class="v">${amt(f.plan.totals.typ)}</div>${S.inp.budget ? `<div class="l">${f.fits ? 'Fits your budget' : 'Above your budget'}</div>` : ''}</div>` : '<p class="small muted" style="text-align:center;margin-top:14px">Your estimate appears here as you answer.</p>'}`;
+}
+function mobileSummary() { const f = liveFit(); return `<button type="button" data-a="msum">${summaryRows().map(([k, v]) => `<span>${k} <b>${esc(v)}</b></span>`).join('')}${f ? `<span>Estimate <b>${fmtShort(f.plan.totals.typ)}</b></span>` : ''}</button>`; }
+function refreshSummary() { const s = $('#summary'); if (s) s.innerHTML = summaryHTML(); const m = app.querySelector('.msum'); if (m) m.innerHTML = mobileSummary(); }
+const errHTML = k => S.errors[k] ? `<p class="err" role="alert">${esc(S.errors[k])}</p>` : '';
+const radio = (name, val, cur, title, sub) => `<label class="opt"><input type="radio" name="${name}" value="${esc(val)}" ${String(cur) === String(val) ? 'checked' : ''}><span><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span></label>`;
+const chip = (type, name, val, on, label, dis, badge) => `<label class="chip"><input type="${type}" name="${name}" value="${esc(val)}" ${on ? 'checked' : ''} ${dis ? 'disabled' : ''}><span>${badge ? `<b class="pn">Priority ${badge}</b>` : ''}${esc(label)}</span></label>`;
+
+const cityOptions = () => Object.values(DEST).sort((a, b) => a.name.localeCompare(b.name)).map(d => `<option value="${esc(d.name)}">${esc(d.state)}</option>`).join('');
+const cityId = v => { const x = Object.values(DEST).find(d => d.name.toLowerCase() === String(v).trim().toLowerCase()); return x ? x.id : ''; };
+
+function stepHTML() {
+  const i = S.inp;
+  switch (S.step) {
+    case 0: {
+      const homes = DEST_LIST.filter(d => d.home); const dests = DEST_LIST.filter(d => d.dest);
+      const d = dest(); const se = d && i.month ? seasonOf(d, i.month) : null;
+      const seasonNote = se ? { peak: `Peak wedding season in ${d.name}: best weather, highest prices. Book venues early.`, shoulder: `Shoulder season in ${d.name}: usually good weather and more venue choice.`, off: `Off-season in ${d.name}: lower prices, but check the heat or cold for outdoor events.`, monsoon: `Monsoon in ${d.name}: lower prices, but outdoor events need a rain back-up.` }[se.band] : '';
+      let dayOpts = '';
+      if (i.month) { const n = daysIn(i.month, i.year); for (let k = 1; k <= n; k++) { const dt = new Date(i.year, i.month - 1, k, 12); if (dt < TODAY) continue; dayOpts += `<option value="${k}" ${i.date === isoOf(i.year, i.month, k) ? 'selected' : ''}>${WD[dt.getDay()]} ${k} ${MONTHS[i.month - 1].slice(0, 3)}</option>`; } }
+      return `<h2>Where and when?</h2><p class="help">This decides how we price rooms, travel and food.</p>
+      <fieldset class="q"><legend>Is the wedding in your city, or are you travelling?</legend>
+        <div class="opts">${radio('mode', 'home', i.mode, 'In our city', 'Most guests live nearby')}${radio('mode', 'destination', i.mode, 'A destination wedding', 'Guests travel and stay')}${radio('mode', 'unsure', i.mode, 'Not sure yet', 'Suggest a destination for us')}</div>${errHTML('mode')}</fieldset>
+      ${i.mode === 'home' ? `<div class="q field" style="max-width:360px"><label for="wcity">Which city?</label><input class="inp" id="wcity" name="homeDest" list="cityList" placeholder="Type to search a city" autocomplete="off" value="${dest() ? esc(dest().name) : ''}"><datalist id="cityList">${cityOptions()}</datalist>${errHTML('destId')}</div>` : ''}
+      ${i.mode && i.mode !== 'home' ? `<div class="q field" style="max-width:360px"><label for="homeCity">Where does your family live?</label><input class="inp" id="homeCity" name="homeCity" list="cityList" placeholder="Type to search a city" autocomplete="off" value="${i.homeCity && DEST[i.homeCity] ? esc(DEST[i.homeCity].name) : ''}"><datalist id="cityList">${cityOptions()}</datalist><p class="hint" style="margin-top:6px">We use this to compare with a wedding at home.</p>${errHTML('homeCity')}</div>` : ''}
+      ${i.mode === 'destination' ? `<fieldset class="q"><legend>Destination</legend><div class="opts">${dests.map(x => radio('destId', x.id, i.destId, x.name, x.type)).join('')}</div>${errHTML('destId')}</fieldset>` : ''}
+      ${i.mode === 'unsure' ? `<fieldset class="q"><legend>What kind of place do you picture?</legend><div class="opts">${radio('region', 'Rajasthan', i.region, 'Palaces and forts', 'Udaipur, Jaipur, Jodhpur')}${radio('region', 'Beach', i.region, 'Beach', 'Goa')}${radio('region', 'South', i.region, 'South India', 'Kerala, Mysuru, Hyderabad')}${radio('region', 'Hills', i.region, 'Hills', 'Coorg')}${radio('region', 'any', i.region, 'Best value', 'Whatever fits the budget')}</div>${errHTML('region')}</fieldset>` : ''}
+      <fieldset class="q"><legend>Wedding month</legend><div class="chips">${monthList().map(({ m, y }) => chip('radio', 'monthKey', `${y}-${m}`, i.month === m && i.year === y, `${MONTHS[m - 1].slice(0, 3)} ${y}`)).join('')}</div>${errHTML('month')}</fieldset>
+      ${i.month ? `<div class="q field" style="max-width:280px"><label for="day">First day of the celebrations (optional)</label><select class="inp" id="day" name="day"><option value="">Not decided yet</option>${dayOpts}</select></div>` : ''}
+      ${seasonNote ? `<p class="note ${se.band === 'monsoon' ? 'bad' : se.band === 'peak' ? '' : 'info'}">${esc(seasonNote)}</p>` : ''}`;
+    }
+    case 1: {
+      const isDest = i.mode !== 'home'; const share = isDest ? i.stayShare : i.outShare; const staying = Math.round(i.guests * share); const d = dest();
+      return `<h2>How many guests?</h2><p class="help">An approximate number is fine.</p>
+      <div class="q range-wrap"><div class="range-top"><label class="ql" for="guestsR" style="margin:0">Total guests</label><input class="inp numbox" type="number" name="guestsN" min="20" max="3000" step="10" value="${i.guests}" aria-label="Exact number of guests"></div>
+        <div class="range-val" id="guestsV">${i.guests}</div><input type="range" id="guestsR" name="guests" min="30" max="1500" step="10" value="${Math.min(1500, i.guests)}">${errHTML('guests')}</div>
+      ${d && i.guests > d.maxGuests ? `<p class="note bad">Most venues in ${esc(d.name)} host up to about ${d.maxGuests} guests.</p>` : ''}
+      <div class="q range-wrap"><div class="range-top"><label class="ql" for="shareR" style="margin:0">${isDest ? 'How many will stay at the destination?' : 'How many are from out of town and need rooms?'}</label><b id="shareV">${staying} guests</b></div>
+        <input type="range" id="shareR" name="${isDest ? 'stayShare' : 'outShare'}" min="${isDest ? 30 : 0}" max="100" step="5" value="${Math.round(share * 100)}"></div>`;
+    }
+    case 2: {
+      const key = i.traditions.join(',') + i.mode;
+      if (!i.eventsEdited && i.eventsKey !== key) { i.events = buildEvents(i); i.eventsKey = key; }
+      const days = daysOf(i); const byDay = []; for (let d = 1; d <= days; d++) byDay.push(sortEvents(i.events.filter(e => e.day === d)));
+      const opts = Object.entries(EV).filter(([k]) => k !== 'custom').map(([k, v]) => `<option value="${k}">${esc(v.name)}</option>`).join('');
+      return `<h2>Your events</h2><p class="help">Pick your traditions and we'll suggest the usual events. Every family is different, so change anything.</p>
+      <fieldset class="q"><legend>Traditions (up to two)</legend><div class="chips">${TRADITIONS.map(t => chip('checkbox', 'trad', t.id, i.traditions.includes(t.id), t.label, !i.traditions.includes(t.id) && i.traditions.length >= 2)).join('')}</div></fieldset>
+      <div class="days">${byDay.map((evs, k) => `<div class="day"><header><span>Day ${k + 1}</span><span class="small muted">${evs.length} event${evs.length === 1 ? '' : 's'}</span></header>${evs.map(evRow).join('') || '<p class="small muted" style="padding:12px 14px;margin:0">No events. This day is removed when you continue.</p>'}</div>`).join('')}</div>${errHTML('events')}
+      <div class="addrow"><div class="field"><label for="addKey">Add an event</label><select class="inp" id="addKey" name="addKey">${opts}<option value="custom" ${S.addCustom ? 'selected' : ''}>Something else (name it)</option></select></div>
+        <div class="field" id="customWrap" style="${S.addCustom ? '' : 'display:none'}"><label for="addName">Event name</label><input class="inp" id="addName" name="addName" maxlength="40"></div>
+        <button type="button" class="btn ghost" data-a="addEvent">Add event</button></div>`;
+    }
+    case 3:
+      return `<h2>Food and drinks</h2><p class="help">Catering is one of the biggest costs.</p>
+      <fieldset class="q"><legend>What will you serve?</legend><div class="opts">${radio('diet', 'veg', i.diet, 'Vegetarian')}${radio('diet', 'mixed', i.diet, 'Veg and non-veg')}${radio('diet', 'nonveg', i.diet, 'Mostly non-veg')}</div>${errHTML('diet')}</fieldset>
+      <fieldset class="q"><legend>Will you serve alcohol?</legend><div class="opts">${radio('alcohol', 'yes', i.alcohol === true ? 'yes' : i.alcohol === false ? 'no' : '', 'Yes', 'At the evening events')}${radio('alcohol', 'no', i.alcohol === true ? 'yes' : i.alcohol === false ? 'no' : '', 'No')}</div>${errHTML('alcohol')}</fieldset>
+      ${dest() && /alcohol/i.test(dest().note) && (i.alcohol || i.diet === 'mixed' || i.diet === 'nonveg') ? `<p class="note bad">${esc(dest().note)}</p>` : ''}`;
+    case 4: {
+      const bi = i.budget ? bandOf(i.budget) : -1; const b = BANDS[bi];
+      const f = i.budget ? liveFit() : null;
+      return `<h2>What is your total budget?</h2><p class="help">We'll fit the plan to this number. Not sure? We can suggest one.</p>
+      <fieldset class="q"><legend>Budget range</legend><div class="chips">${BANDS.map((x, k) => chip('radio', 'band', k, bi === k, x.label)).join('')}</div>${errHTML('budget')}</fieldset>
+      ${b ? `<div class="q range-wrap"><div class="range-top"><label class="ql" for="budR" style="margin:0">Your budget</label><span class="range-val" id="budV">${amt(i.budget)}</span></div><input type="range" id="budR" name="budget" min="${b.lo}" max="${b.hi}" step="${b.step}" value="${i.budget}"></div>` : ''}
+      <p><button type="button" class="linkbtn" data-a="suggestBudget">Suggest a budget for me</button></p>
+      ${S.suggested ? `<p class="note info">${esc(S.suggested)}</p>` : ''}
+      <div class="q"><label class="toggle"><input type="checkbox" name="incJewellery" ${i.incJewellery ? 'checked' : ''}> This budget also covers jewellery and outfits</label>
+        ${i.incJewellery ? `<div class="field" style="max-width:280px;margin:10px 0 0 30px"><label for="jA">Amount for jewellery and outfits (₹)</label><input class="inp" id="jA" type="number" min="0" step="10000" name="jewelleryAmt" value="${i.jewelleryAmt}"></div>` : ''}</div>
+      <div id="budgetCheck">${budgetCheck(f)}</div>`;
+    }
+    case 6:
+      return `<h2>Where should we send your plan?</h2><p class="help">We'll verify your WhatsApp number, then show your plan. You can download it as a PDF or share it on WhatsApp.</p>
+      <div class="row2"><div class="q field"><label for="dName">Your name</label><input class="inp" id="dName" name="fullname" autocomplete="name" value="${esc(i.fullname)}">${errHTML('fullname')}</div>
+      <div class="q field"><label for="dPhone">WhatsApp number</label><div style="display:flex;gap:8px"><span class="inp" style="width:auto;display:flex;align-items:center">+91</span><input class="inp" id="dPhone" name="phone" inputmode="numeric" autocomplete="tel-national" maxlength="10" value="${esc(i.phone)}"></div>${errHTML('phone')}</div></div>
+      <div class="row2"><div class="q field"><label for="dEmail">Email (optional)</label><input class="inp" id="dEmail" name="email" type="email" autocomplete="email" value="${esc(i.email)}">${errHTML('email')}</div>
+      <div class="q field"><label for="dRole">You are the</label><select class="inp" id="dRole" name="role"><option value="">Choose (optional)</option>${['Bride', 'Groom', 'Parent', 'Sibling or relative', 'Wedding planner'].map(r => `<option ${i.role === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div></div>
+      <div class="q"><label class="consent"><input type="checkbox" name="consentPlan" ${i.consentPlan ? 'checked' : ''}> <span>Share my plan and contact details with King of Cards so their team can help me plan. <a href="${KOC}/pages/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></span></label>${errHTML('consentPlan')}
+      <label class="consent" style="margin-top:10px"><input type="checkbox" name="consentMkt" ${i.consentMkt ? 'checked' : ''}> <span>Also send me wedding tips and King of Cards offers on WhatsApp (optional). I can stop anytime.</span></label></div>`;
+    case 5:
+      return `<h2>What matters most?</h2><p class="help">Optional. Pick up to three and we'll protect them when fitting your budget.</p>
+      <fieldset class="q"><legend class="sr">Priorities</legend><div class="chips">${Object.entries(PRIO).map(([k, v]) => chip('checkbox', 'prio', k, i.priorities.includes(k), v.label, !i.priorities.includes(k) && i.priorities.length >= 3, i.priorities.indexOf(k) + 1)).join('')}</div></fieldset>`;
+  }
+  return '';
+}
+function budgetCheck(f) {
+  if (!f) return '';
+  if (f.fits && !f.applied.length) return `<p class="note info">This budget works: we'd plan a <b>${esc(f.plan.tierName)}</b> style wedding at about ${amt(f.plan.totals.typ)}.</p>`;
+  if (f.fits) return `<p class="note">This budget works with a few changes, such as ${esc(f.applied[0].label.toLowerCase())}. You'll see them all on your plan.</p>`;
+  return `<p class="note bad">This budget is tight for this wedding: even the simplest version is about ${amt(f.plan.totals.typ)}. Your plan will show what would fit.</p>`;
+}
+function evRow(e) {
+  const g = Math.round(S.inp.guests * e.share); const open = S.editEvent === e.uid; const days = daysOf(S.inp); const lv = { 1: 'Simple', 2: 'Elegant', 3: 'Grand' };
+  return `<div class="ev"><div class="ev-row"><div><div class="nm">${esc(e.name)}</div><div class="meta">${e.slot}, ${g} guests, ${MEAL_LABEL[e.meal].toLowerCase()}</div></div>
+    <div class="acts"><button type="button" class="iconbtn" data-a="editEvent" data-uid="${e.uid}" aria-expanded="${open}">${open ? 'Done' : 'Edit'}</button><button type="button" class="iconbtn" data-a="removeEvent" data-uid="${e.uid}" aria-label="Remove ${esc(e.name)}">Remove</button></div></div>
+    ${open ? `<div class="ev-edit">
+      <div class="field"><label>Day</label><select class="inp" name="evDay" data-uid="${e.uid}">${Array.from({ length: Math.min(7, days + 1) }, (_, k) => `<option value="${k + 1}" ${e.day === k + 1 ? 'selected' : ''}>Day ${k + 1}</option>`).join('')}</select></div>
+      <div class="field"><label>Time</label><select class="inp" name="evSlot" data-uid="${e.uid}">${Object.keys(slotOrder).map(s => `<option ${e.slot === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label>Meal</label><select class="inp" name="evMeal" data-uid="${e.uid}">${Object.entries(MEAL_LABEL).map(([k, v]) => `<option value="${k}" ${e.meal === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+      <div class="field"><label>Guests: <span id="evShareV${e.uid}">${Math.round(e.share * 100)}% (${g})</span></label><input type="range" name="evShare" data-uid="${e.uid}" min="10" max="100" step="5" value="${Math.round(e.share * 100)}"></div>
+      <div class="field"><label>Décor</label><select class="inp" name="evDecor" data-uid="${e.uid}">${[1, 2, 3].map(l => `<option value="${l}" ${e.decor === l ? 'selected' : ''}>${lv[l]}</option>`).join('')}</select></div>
+      <div class="field"><label>Setting</label><select class="inp" name="evSetting" data-uid="${e.uid}"><option value="indoor" ${e.setting === 'indoor' ? 'selected' : ''}>Indoor</option><option value="outdoor" ${e.setting === 'outdoor' ? 'selected' : ''}>Outdoor</option></select></div>
+    </div>` : ''}</div>`;
+}
+function validate(step) {
+  const i = S.inp; const e = {};
+  if (step === 0) {
+    if (!i.mode) e.mode = 'Choose where the wedding is.';
+    if (i.mode && i.mode !== 'home' && !i.homeCity) e.homeCity = 'Choose the city your family lives in.';
+    if (i.mode === 'home' && !i.destId) e.destId = 'Choose the wedding city.';
+    if (i.mode === 'destination' && !i.destId) e.destId = 'Choose a destination, or pick "Not sure yet".';
+    if (i.mode === 'unsure' && !i.region) e.region = 'Choose the kind of place you picture.';
+    if (!i.month) e.month = 'Choose the wedding month.';
+  }
+  if (step === 1 && (!(i.guests >= 20) || i.guests > 3000)) e.guests = 'Enter between 20 and 3,000 guests.';
+  if (step === 2 && !i.events.length) e.events = 'Add at least one event.';
+  if (step === 3) { if (!i.diet) e.diet = 'Choose what you will serve.'; if (i.alcohol == null) e.alcohol = 'Choose yes or no.'; }
+  if (step === 6) {
+    if (!i.fullname || i.fullname.length < 2) e.fullname = 'Enter your name.';
+    if (!/^[6-9]\d{9}$/.test(i.phone || '')) e.phone = 'Enter a 10-digit Indian mobile number.';
+    if (i.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(i.email)) e.email = 'Check the email address.';
+    if (!i.consentPlan) e.consentPlan = 'Tick the box so we can share your plan with you and the King of Cards team.';
+  }
+  if (step === 4) { if (!i.budget) e.budget = 'Choose a budget range, or tap "Suggest a budget for me".'; else if (i.incJewellery && i.jewelleryAmt >= i.budget) e.budget = 'Jewellery and outfits take up the whole budget. Lower that amount or raise the budget.'; }
+  S.errors = e; return !Object.keys(e).length;
+}
+function compactDays() { const used = [...new Set(S.inp.events.map(e => e.day))].sort((a, b) => a - b); S.inp.events.forEach(e => { e.day = used.indexOf(e.day) + 1; }); }
+function next() {
+  if (!validate(S.step)) {
+    renderPlanner(); const first = app.querySelector('.q .err, .field .err'); const box = first && first.closest('.q, .field');
+    const ctl = box && box.querySelector('input:not([disabled]), select'); if (box) box.scrollIntoView({ block: 'center' }); if (ctl) ctl.focus({ preventScroll: true });
+    track('step_error', { step: STEPS[S.step], fields: Object.keys(S.errors).join(',') }); return;
+  }
+  if (S.step === 2) compactDays();
+  if (S.step === 0 && S.inp.mode === 'unsure') pickDestination();
+  track('step_completed', { step: STEPS[S.step], step_number: S.step + 1 });
+  if (S.step === STEPS.length - 1) { if (S.verifiedPhone === S.inp.phone) generate(); else startOtp(); return; }
+  S.step++; S.maxStep = Math.max(S.maxStep, S.step); S.editEvent = null; persist(); renderPlanner(true); window.scrollTo({ top: 0 });
+}
+function pickDestination() {
+  const i = S.inp; const r = i.region;
+  const pool = DEST_LIST.filter(d => d.dest && (r === 'any' || d.region === r));
+  const pick = pool.length === 1 || r !== 'any' ? pool[0] : DEST.mysuru;
+  i.destId = pick.id; i.pickedFrom = r; S.chosenBy = pick.name;
+}
+function generate() {
+  const i = S.inp;
+  if (i.mode === 'unsure') { // choose the region destination that gives the best plan for this budget
+    const pool = DEST_LIST.filter(d => d.dest && (i.region === 'any' || d.region === i.region) && d.maxGuests >= i.guests);
+    let best = null;
+    pool.forEach(d => { const f = fitToBudget(Object.assign(clone(i), { destId: d.id, mode: 'destination' })); const score = (f.fits ? 100 : 0) - f.applied.length * 5 + f.plan.tier * 10; if (!best || score > best.score) best = { d, score }; });
+    const pick = best ? best.d : DEST.jaipur; i.mode = 'destination'; i.destId = pick.id; S.chosenBy = pick.name;
+    track('destination_suggested', { destination: pick.id, region: i.region });
+  }
+  recalc(); S.view = 'results';
+  if (!S.lead || S.lead.phone !== i.phone) S.lead = { planId: planId(), name: i.fullname, phone: i.phone, email: i.email, role: i.role, consent: i.consentMkt };
+  else Object.assign(S.lead, { name: i.fullname, email: i.email, role: i.role, consent: i.consentMkt });
+  persist(); saveLead('submitted'); track('lead_submitted', { plan_id: S.lead.planId, consent_marketing: !!i.consentMkt });
+  track('plan_generated', { destination: i.destId, guests: i.guests, budget: i.budget, total_typical: S.fit.plan.totals.typ, fits: S.fit.fits, changes: S.fit.applied.length, plan_id: S.lead.planId });
+  renderResults(); window.scrollTo({ top: 0 });
+}
+
+/* ======================== VENDOR MATCHING ========================
+   Each cost line has a per-unit budget from the engine (per plate, per day, per function...).
+   Vendors whose listed starting price fits that budget are shown, best affordable first.
+   Change the budget and the per-unit figure moves, so the suggestions move with it. */
+const UNIT_LABEL = { plate: 'per plate', day: 'per day, photo + video', start: 'starting price per function', fn: 'per function', bridal: 'bridal mehendi', event: 'per event', fee: 'planning fee', ritual: 'per ceremony', rental: 'rental per function', dayhire: 'per vehicle per day' };
+const LINE_VENDORS = {
+  food: [{ cat: 'food', title: 'Caterers', unit: p => p.units.plate, what: 'per plate' }],
+  venue: [{ cat: 'venue', title: 'Venues', unit: p => p.units.venueMain, what: 'for the main function', plateAlt: p => p.units.plate + p.units.venueMain / Math.max(1, S.fit.inp.guests) }],
+  stay: [{ cat: 'stay', title: 'Hotels and resorts', level: 'stay' }],
+  decor: [{ cat: 'decor', title: 'Decorators', unit: p => p.units.decorMain, what: 'for your main function' }],
+  photo: [{ cat: 'photo', title: 'Photographers', unit: p => p.units.photoDay, what: 'per day, photo + video' }],
+  ent: [{ cat: 'dj', title: 'DJs', unit: p => p.units.dj, what: 'per event' }, { cat: 'choreo', title: 'Sangeet choreographers', unit: p => p.units.choreo, what: 'per sangeet' }],
+  beauty: [{ cat: 'makeup', title: 'Bridal make-up artists', unit: p => p.units.look, what: 'per function' }, { cat: 'mehendi', title: 'Mehendi artists', unit: p => p.units.bridemeh, what: 'for bridal mehendi' }],
+  ceremonies: [{ cat: 'ceremonies', title: 'Priests and pandits', unit: p => p.units.ritual, what: 'per ceremony' }],
+  transport: [{ cat: 'transport', title: 'Guest transport', unit: () => 99999, what: '' }]
+};
+const LINE_NOTES = {
+  production: 'Stage sound, lighting and generator back-up are usually quoted by your décor team or DJ. Many DJs above list sound and lights as extra, so ask for one combined quote.',
+  bar: 'Arranged through your venue or caterer. Each event with a bar needs a state licence; your venue can apply for it.',
+  fees: 'Permissions are applied for by your venue or planner. No vendor to book.',
+  contingency: 'A reserve for price changes and last-minute additions. Keep it unspent until the final week.'
+};
+function vendorPool(cat) {
+  const id = S.inp.destId; const hubs = VENDOR_HUBS[id] || [];
+  const out = [];
+  hubs.forEach((h, k) => { ((VENDOR_DB[h] || {})[cat] || []).forEach(v => { if (!out.some(o => o.n === v[0])) out.push({ n: v[0], p: v[1], u: v[2], a: v[3] || '', src: typeof v[4] === 'string' ? v[4] : 'wmg', r: Array.isArray(v[4]) ? v[4] : null, hub: h, away: h !== id }); }); });
+  return out;
+}
+function levelVendors(cat, tier) {
+  let list = vendorPool(cat).filter(v => v.u === 'level').map(v => ({ ...v, r: v.r || [2, 3] }));
+  if (!list.length && (cat === 'stay' || cat === 'venue')) list = (VENUES[S.inp.destId] || []).map(([n, r, note]) => ({ n, p: null, u: 'level', a: note, r, src: 'wmg', away: false }));
+  return list.map(v => ({ ...v, d: tier < v.r[0] ? v.r[0] - tier : tier > v.r[1] ? tier - v.r[1] : 0 })).sort((a, b) => a.d - b.d || a.r[0] - b.r[0]).slice(0, 3)
+    .map(v => ({ ...v, fit: v.d <= 0.8 ? 'in' : 'above', priceText: `${PRICE_LEVEL[v.r[0]]}${v.r[1] > v.r[0] ? ' to ' + PRICE_LEVEL[v.r[1]].toLowerCase() : ''} (approx.)` }));
+}
+function suggest(spec, p) {
+  if (spec.level) return { list: levelVendors(spec.cat, p.catTier[spec.level]), budget: null };
+  const budget = spec.unit(p); let pool = vendorPool(spec.cat);
+  if (spec.cat === 'venue') { const lv = levelVendors('venue', p.catTier.venue); pool = pool.filter(v => v.u !== 'level'); if (!pool.length) return { list: lv, budget: null }; }
+  const priced = pool.filter(v => v.p != null).map(v => ({ ...v, cmp: v.u === 'plate' && spec.plateAlt ? spec.plateAlt(p) : budget }));
+  const fits = priced.filter(v => v.p <= v.cmp * 1.1).sort((a, b) => b.p / b.cmp - a.p / a.cmp);
+  const above = priced.filter(v => v.p > v.cmp * 1.1).sort((a, b) => a.p / a.cmp - b.p / b.cmp);
+  const onReq = pool.filter(v => v.p == null);
+  let list = fits.slice(0, 3).map(v => ({ ...v, fit: 'in' }));
+  if (list.length < 3) list = list.concat(above.slice(0, 3 - list.length).map(v => ({ ...v, fit: 'above' })));
+  if (list.length < 3) list = list.concat(onReq.slice(0, 3 - list.length).map(v => ({ ...v, fit: 'req' })));
+  list.forEach(v => { v.priceText = v.p != null ? `Listed from ${inr(v.p)} ${UNIT_LABEL[v.u]}` : (v.u === 'fee' ? 'Fee on request' : 'Price on request'); });
+  return { list, budget };
+}
+const vkey = (cat, n) => cat + '|' + n;
+function vendorItem(cat, v, cityName) {
+  const k = vkey(cat, v.n); const on = !!S.short[k];
+  const tag = v.fit === 'in' ? '<span class="vtag ok">Fits your budget</span>' : v.fit === 'above' ? '<span class="vtag hi">Above your budget</span>' : '<span class="vtag">Ask for a quote</span>';
+  const where = v.away ? `Travels from ${HUB_NAME[v.hub] || v.hub}` : '';
+  return `<li class="vitem"><div class="vmain"><b>${esc(v.n)}</b><span>${esc(v.priceText)}${v.a ? ' · ' + esc(v.a) : ''}${where ? ' · ' + esc(where) : ''}</span>${tag}</div>
+    <div class="vact"><button type="button" class="iconbtn ${on ? 'on' : ''}" data-a="short" data-k="${esc(k)}" data-cat="${esc(cat)}" data-n="${esc(v.n)}" data-price="${esc(v.priceText)}" aria-pressed="${on}">${on ? '★ Shortlisted' : '☆ Shortlist'}</button>
+    <a class="small" href="${gsearch(v.n + ' ' + (v.away ? (HUB_NAME[v.hub] || '') : cityName) + ' wedding')}" target="_blank" rel="noopener" data-a="vendor" data-n="${esc(v.n)}">Find contact</a></div></li>`;
+}
+function lineVendorsHTML(l, p) {
+  const city = p.dest.name.split(',')[0];
+  if (l.key === 'invites') return kocInvites(p);
+  if (l.key === 'hospitality') return `<div class="vsug"><p class="vhead">Return gifts and money envelopes from King of Cards</p><ul class="vlist">
+    <li class="vitem"><div class="vmain"><b>Return gifts for weddings</b><span>King of Cards collection · for about ${p.households} households</span><span class="vtag ok">King of Cards</span></div><div class="vact"><a class="small" href="${KOC}/collections/return-gifts-for-marriage-unique-collection" target="_blank" rel="noopener" data-a="koc" data-n="return gifts">View collection</a></div></li>
+    <li class="vitem"><div class="vmain"><b>Money envelopes</b><span>King of Cards collection</span><span class="vtag ok">King of Cards</span></div><div class="vact"><a class="small" href="${KOC}/collections/money-envelopes-for-weddings-gifting" target="_blank" rel="noopener" data-a="koc" data-n="money envelopes">View collection</a></div></li></ul></div>`;
+  if (LINE_NOTES[l.key]) return `<p class="vnote">${esc(LINE_NOTES[l.key])}</p>`;
+  const specs = LINE_VENDORS[l.key]; if (!specs) return '';
+  return specs.map(sp => {
+    const r = suggest(sp, p);
+    if (!r.list.length) return `<div class="vsug"><p class="vhead">${esc(sp.title)}</p><p class="vnote">We don't have listed ${esc(sp.title.toLowerCase())} for ${esc(city)} yet. Most venues here can recommend one.</p></div>`;
+    const bud = r.budget != null && sp.what ? `Your plan allows about <b>${amt(r.budget)}</b> ${esc(sp.what)}.` : sp.level ? `Matched to a ${esc(TIERS[Math.round(p.catTier[sp.level])])} plan.` : '';
+    return `<div class="vsug"><p class="vhead">${esc(sp.title)} for your budget</p>${bud ? `<p class="vbud">${bud}</p>` : ''}<ul class="vlist">${r.list.map(v => vendorItem(sp.cat, v, city)).join('')}</ul></div>`;
+  }).join('');
+}
+function kocInvites(p) {
+  const shelf = kocShelf(p.cardPrice); const t = Math.round(p.catTier.invites);
+  const type = COLL.types[t <= 1 ? 0 : t === 2 ? 1 : t === 3 ? 2 : t === 4 ? 3 : 4];
+  const rels = [...new Set(S.inp.traditions.map(id => { const x = TRADITIONS.find(y => y.id === id); return x && 'rel' in x ? x.rel : 'hindu'; }).filter(Boolean))];
+  const rel = rels.length > 1 ? COLL.religion.interfaith : rels.length ? COLL.religion[rels[0]] : COLL.floral;
+  const items = [[shelf.label, shelf.url, `About ${inr(p.cardPrice)} per invitation, for ${p.printed} invitations`], [type[0], type[1], type[2]], [rel[0], rel[1], rel[2] || 'Designs for your ceremony']];
+  return `<div class="vsug"><p class="vhead">Invitations by King of Cards</p><p class="vbud">Your plan allows about <b>${inr(p.cardPrice)}</b> per invitation. King of Cards prints a minimum of 100.</p><ul class="vlist">${items.map(([n, u, s]) => `<li class="vitem"><div class="vmain"><b>${esc(n)}</b><span>${esc(s)}</span><span class="vtag ok">King of Cards</span></div><div class="vact"><button type="button" class="iconbtn ${S.short[vkey('invites', n)] ? 'on' : ''}" data-a="short" data-k="${esc(vkey('invites', n))}" data-cat="invites" data-n="${esc(n)}" data-price="${esc(s)}">${S.short[vkey('invites', n)] ? '★ Shortlisted' : '☆ Shortlist'}</button><a class="small" href="${KOC + u}" target="_blank" rel="noopener" data-a="koc" data-n="${esc(n)}">View designs</a></div></li>`).join('')}</ul>
+  <p class="small"><a href="${KOC}/pages/consultation" target="_blank" rel="noopener" data-a="koc" data-n="consultation">Book a free invitation consultation</a></p></div>`;
+}
+function plannerBlock(p) {
+  const allowance = p.celebration * 0.1; const pool = vendorPool('planner');
+  if (!pool.length) return '';
+  const priced = pool.filter(v => v.p != null); const fits = priced.filter(v => v.p <= allowance).sort((a, b) => b.p - a.p);
+  let list = fits.slice(0, 3).map(v => ({ ...v, fit: 'in' }));
+  if (list.length < 3) list = list.concat(priced.filter(v => v.p > allowance).sort((a, b) => a.p - b.p).slice(0, 3 - list.length).map(v => ({ ...v, fit: 'above' })));
+  if (list.length < 3) list = list.concat(pool.filter(v => v.p == null).slice(0, 3 - list.length).map(v => ({ ...v, fit: 'req' })));
+  list.forEach(v => { v.priceText = v.p != null ? `Planning fee from ${inr(v.p)}` : 'Fee on request'; });
+  const open = S.open.has('planner');
+  return `<div class="line ${open ? 'open' : ''}"><button type="button" data-a="line" data-k="planner" aria-expanded="${open}"><span class="nm">Wedding planner<small>Optional, not included in the total</small></span><span class="bar"></span><span class="v">about ${fmtShort(allowance)}<small>typical fee</small></span><span class="chev" aria-hidden="true">›</span></button>
+    <div class="trace"><div class="vsug"><p class="vhead">Wedding planners for your budget</p><p class="vbud">Planners usually charge about a tenth of the budget they manage: about <b>${amt(allowance)}</b> for your plan.</p><ul class="vlist">${list.map(v => vendorItem('planner', v, p.dest.name.split(',')[0])).join('')}</ul></div></div></div>`;
+}
+
+/* ======================== RESULTS ======================== */
+function renderResults() {
+  const i = S.inp, f = S.fit || (S.fit = fitToBudget(i)); const p = plan(); const d = p.dest;
+  const lines = p.lines.slice().sort((a, b) => (a.key === 'contingency') - (b.key === 'contingency') || b.typ - a.typ);
+  const mx = Math.max(...lines.map(l => l.typ)); const prCats = new Set(i.priorities.flatMap(k => PRIO[k].cats));
+  const pi = S.showRaw ? i : f.inp; const evs = sortEvents(pi.events); const byDay = []; for (let k = 1; k <= p.days; k++) byDay.push(evs.filter(e => e.day === k));
+  const fits = S.showRaw ? p.totals.typ <= p.celebration : f.fits;
+  const nShort = Object.keys(S.short).length;
+  app.innerHTML = `
+  <section class="results"><div class="wrap">
+    <div class="res-head">
+      <div>
+        <p class="kicker">Plan ${esc(S.lead ? S.lead.planId : '')}${S.lead ? ` for ${esc(S.lead.name)}` : ''}</p>
+        <h1>Your wedding plan</h1>
+        <p class="muted">${esc(d.name)}, ${esc(datesText(i, p.days))}. ${pi.guests} guests, ${pi.events.length} events over ${p.days} day${p.days > 1 ? 's' : ''}.</p>
+        ${S.chosenBy ? `<p class="note info">You asked us to suggest a destination. ${esc(S.chosenBy)} gives you the best plan for your budget.</p>` : ''}
+        ${fitBox(f)}
+      </div>
+      <div class="sec totalcard" style="margin:0">
+        <p class="small muted" style="margin:0">Estimated cost of this plan</p>
+        <div class="v">${amt(p.totals.typ)}</div>
+        <p class="small muted">Likely range ${amt(p.totals.min)} to ${amt(p.totals.max)}</p>
+        <div class="bud-row"><span>Your budget</span><b>${amt(i.budget)}</b></div>
+        ${p.personal ? `<div class="bud-row"><span>Set aside for jewellery and outfits</span><b>${amt(p.personal)}</b></div>` : ''}
+        <span class="badge ${fits ? 'comfortable' : 'stretch'}">${fits ? 'Fits your budget' : `${amt(p.totals.typ - p.celebration)} over budget`}</span>
+        <div class="stack" style="margin-top:16px"><button class="btn" data-a="pdf">Download PDF</button><a class="btn ghost" href="${waLink()}" target="_blank" rel="noopener" data-a="wa">Share on WhatsApp</a></div>
+        <p class="tiny muted" style="margin:10px 0 0">${nShort ? `${nShort} vendor${nShort > 1 ? 's' : ''} shortlisted; they're included in your PDF and WhatsApp message.` : 'Shortlist vendors below and they\'ll be included in your PDF and WhatsApp message.'}</p>
+      </div>
+    </div>
+
+    <div class="adjust" id="adjust" role="group" aria-label="Adjust your plan">
+      <div class="field"><label for="aG">Guests</label><input class="inp" id="aG" type="number" name="aGuests" min="20" max="3000" step="10" value="${i.guests}"></div>
+      <div class="field"><label for="aB">Budget (₹ lakh)</label><input class="inp" id="aB" type="number" name="aBudget" min="3" step="0.5" value="${Math.round(i.budget / 1e4) / 10}"></div>
+      <div class="field"><label for="aD">${i.mode === 'home' ? 'City' : 'Destination'}</label><select class="inp" id="aD" name="aDest">${Object.values(DEST).filter(x => i.mode === 'home' ? x.home : x.dest).map(x => `<option value="${x.id}" ${x.id === i.destId ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+      <div class="field"><label for="aF">Food</label><select class="inp" id="aF" name="aDiet">${[['veg', 'Vegetarian'], ['jain', 'Jain'], ['mixed', 'Veg and non-veg'], ['nonveg', 'Mostly non-veg']].map(([v, l]) => `<option value="${v}" ${i.diet === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+      <button type="button" class="btn quiet sm" data-a="editAnswers">Edit all answers</button>
+    </div>
+
+    <div class="res-grid"><div>
+      <section class="sec" id="money"><h2>Where the money goes</h2>
+        <p class="lead">Tap any line to see vendors that fit your budget for it. Change the budget above and the suggestions change too.${prCats.size ? ' Your priorities are in marigold.' : ''}</p>
+        <div class="lines">${lines.map(l => lineHTML(l, mx, prCats.has(l.key), p)).join('')}${plannerBlock(p)}</div>
+        <div class="totrow"><span>Total</span><span></span><span class="v">${amt(p.totals.typ)}</span><span></span></div>
+        <p class="small muted" style="margin-top:14px">Not included: wedding planner fees, a refundable venue deposit (about ${amt(p.deposit)}) and honeymoon. Vendor prices are their listed starting prices on WedMeGood or their own sites (September 2026), not quotes; King of Cards has not verified or endorsed them.</p>
+      </section>
+      <section class="sec"><h2>Your events, day by day</h2>
+        <div class="sched">${byDay.map((de, k) => `<div class="d"><h3>Day ${k + 1}${i.date ? `, ${dayDate(i.date, k)}` : ''}</h3><ul>${de.map(e => `<li><b>${esc(e.name)}</b><span>${e.slot}, ${Math.round(pi.guests * e.share)} guests${e.meal !== 'none' ? `, ${MEAL_LABEL[e.meal].toLowerCase()}` : ''}</span></li>`).join('') || '<li><span>Free day</span></li>'}</ul></div>`).join('')}</div>
+        <p style="margin-top:14px"><button class="linkbtn" data-a="editEvents">Change events</button></p>
+      </section>
+    </div>
+    <aside class="side">
+      <div class="card"><h3>Your plan</h3><div class="stack"><button class="btn" data-a="pdf">Download PDF</button><a class="btn ghost" href="${waLink()}" target="_blank" rel="noopener" data-a="wa">Share on WhatsApp</a><a class="btn quiet" href="${waLink(true)}" target="_blank" rel="noopener" data-a="wafam">Send to family</a></div>
+      <p class="tiny muted" style="margin:10px 0 0">Plan ${esc(S.lead ? S.lead.planId : '')}. Share on WhatsApp sends your plan to the King of Cards team so they can help you.</p></div>
+    </aside></div>
+  </div></section>
+  <div class="mbar"><button class="btn" data-a="pdf">Download PDF</button><a class="btn ghost" href="${waLink()}" target="_blank" rel="noopener" data-a="wa">WhatsApp</a></div>`;
+}
+function lineHTML(l, mx, prio, p) {
+  const open = S.open.has(l.key); const hasV = !!(LINE_VENDORS[l.key] || ['invites', 'hospitality'].includes(l.key));
+  return `<div class="line ${open ? 'open' : ''}"><button type="button" data-a="line" data-k="${l.key}" aria-expanded="${open}"><span class="nm">${esc(l.name)}<small>${prio ? 'A priority · ' : ''}${hasV ? 'Tap for vendors' : 'Tap for details'}</small></span><span class="bar"><i class="${prio ? 'p' : ''}" style="width:${Math.max(2, Math.round(l.typ / mx * 100))}%"></i></span><span class="v">${amt(l.typ)}<small>${fmtShort(l.min)}–${fmtShort(l.max)}</small></span><span class="chev" aria-hidden="true">›</span></button>
+  <div class="trace">${open ? lineVendorsHTML(l, p) : ''}<details class="calc"><summary>How we calculated this</summary><ul>${l.trace.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details></div></div>`;
+}
+function fitBox(f) {
+  if (S.showRaw) return `<p class="note">This is the plan exactly as you described it, before any changes. <button class="linkbtn" data-a="toggleRaw">Show the plan that fits my budget</button></p>`;
+  let h = '';
+  if (f.applied.length) h += `<div class="fitbox"><p><b>${f.fits ? `To fit your ${amt(f.plan.celebration)} budget, we made these changes:` : 'We made these changes to bring the cost down:'}</b></p><ul>${f.applied.map(a => `<li>${esc(a.label)} <span>saves ${amt(a.saving)}</span></li>`).join('')}</ul><p class="small"><button class="linkbtn" data-a="toggleRaw">See the plan without these changes (${amt(f.raw.totals.typ)})</button></p></div>`;
+  if (!f.fits) {
+    const opts = [];
+    if (f.guestsFit) opts.push(`<li>Invite about <b>${f.guestsFit} guests</b> instead of ${f.inp.guests}. <button class="linkbtn" data-a="fixGuests">Plan for ${f.guestsFit}</button></li>`);
+    (f.alts || []).slice(0, 2).forEach(a => opts.push(`<li>Hold it in <b>${esc(a.d.name)}</b>, about ${amt(a.plan.totals.typ)}. <button class="linkbtn" data-a="switchDest" data-id="${a.d.id}">Plan in ${esc(a.d.name.split(',')[0])}</button></li>`));
+    const hc = S.inp.homeCity && DEST[S.inp.homeCity] && S.inp.mode !== 'home' ? planWithPriorities(Object.assign(clone(f.inp), { mode: 'home', destId: S.inp.homeCity })) : null;
+    if (hc) opts.push(`<li>Hold it at home in <b>${esc(hc.dest.name)}</b>, about ${amt(hc.totals.typ)}. <button class="linkbtn" data-a="goHome">Plan in ${esc(hc.dest.name)}</button></li>`);
+    opts.push(`<li>Raise the budget to about <b>${amt(Math.ceil((f.plan.totals.typ + f.plan.personal) / 1e5) * 1e5)}</b>. <button class="linkbtn" data-a="raiseBudget">Use this budget</button></li>`);
+    h += `<div class="fitbox bad"><p><b>Your budget is ${amt(f.plan.totals.typ - f.plan.celebration)} short, even for the simplest version of this wedding.</b> Here's what would work:</p><ul>${opts.join('')}</ul></div>`;
+  }
+  return h;
+}
+function dayDate(iso, k) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + k); return `${WD[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0, 3)}`; }
+
+/* ======================== LEAD DATA, PDF AND WHATSAPP ======================== */
+// Set to King of Cards' WhatsApp Business number (country code, no +). Empty: the customer picks a chat.
+const KOC_WHATSAPP = '';
+// Production: POST the lead to the backend through the Shopify App Proxy, e.g. '/apps/planner/leads'.
+const LEAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyA6GK1nigCZh8wS3XZ3RTSDdE062O4iL8q62MIAJjRdGIPxVQOaDHjGswfc0PuEEM/exec';
+function planId() { const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = 'KOC-'; for (let k = 0; k < 6; k++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+function leadRecord() {
+  const i = S.inp, f = S.fit, p = f.plan;
+  return {
+    plan_id: S.lead.planId, created_at: new Date().toISOString(), source: 'koc-ai-wedding-planner', otp_token: S.otpToken || null,
+    customer: { name: S.lead.name, whatsapp: '+91' + S.lead.phone, email: S.lead.email || null, role: S.lead.role || null, consent_plan: true, consent_marketing: !!S.lead.consent },
+    wedding: { mode: i.mode, destination: p.dest.name, home_city: i.homeCity, month: i.month, year: i.year, start_date: i.date || null, guests: f.inp.guests, events: f.inp.events.map(e => ({ name: e.name, day: e.day, slot: e.slot, meal: e.meal, decor: e.decor, setting: e.setting, guests: Math.round(f.inp.guests * e.share) })), traditions: i.traditions, food: i.diet, alcohol: i.alcohol, priorities: i.priorities },
+    budget: { total: i.budget, jewellery_outfits: p.personal || 0, estimate_typical: p.totals.typ, estimate_min: p.totals.min, estimate_max: p.totals.max, fits: f.fits, style: p.tierName, changes_applied: f.applied.map(a => a.label) },
+    lines: p.lines.map(l => ({ category: l.name, typical: l.typ })),
+    shortlist: Object.values(S.short)
+  };
+}
+function saveLead(reason) {
+  const rec = leadRecord();
+  rec.reason = reason;
+  rec.inputs = clone(S.inp);
+  try { const all = JSON.parse(localStorage.getItem('kocLeads.v1') || '[]'); const k = all.findIndex(x => x.plan_id === rec.plan_id); if (k >= 0) all[k] = rec; else all.push(rec); localStorage.setItem('kocLeads.v1', JSON.stringify(all)); } catch (e) { }
+  if (LEAD_ENDPOINT) { try { fetch(LEAD_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(rec) }).catch(() => { }); } catch (e) { } }
+  // Analytics gets no personal data: GA4 must not receive names or phone numbers.
+  track('lead_updated', { reason, plan_id: rec.plan_id, destination: rec.wedding.destination, guests: rec.wedding.guests, budget: rec.budget.total, estimate: rec.budget.estimate_typical, fits: rec.budget.fits, shortlisted: rec.shortlist.length });
+  S.lastLead = rec; return rec;
+}
+function waText(family) {
+  const f = S.fit, p = f.plan, i = S.inp;
+  const sl = Object.values(S.short);
+  const top = p.lines.filter(l => l.key !== 'contingency').sort((a, b) => b.typ - a.typ).slice(0, 5);
+  let t = family ? `Our wedding plan from King of Cards (${S.lead ? S.lead.planId : ''})\n` : `Hi King of Cards, here is my wedding plan ${S.lead ? S.lead.planId : ''}.\n`;
+  if (!family && S.lead) t += `Name: ${S.lead.name}\n`;
+  t += `Wedding: ${p.dest.name}, ${datesText(i, p.days)}\nGuests: ${f.inp.guests}, ${f.inp.events.length} events\nBudget: ${amt(i.budget)}\nEstimate: ${amt(p.totals.typ)} (${f.fits ? 'fits the budget' : 'over budget'})\n`;
+  t += `Biggest costs: ${top.map(l => `${l.name} ${fmtShort(l.typ)}`).join(', ')}\n`;
+  if (sl.length) t += `Shortlisted: ${sl.slice(0, 12).map(v => v.name).join(', ')}\n`;
+  if (!family) t += 'Please help me with invitations and planning.';
+  return t;
+}
+function waLink(family) { const num = family ? '' : KOC_WHATSAPP; return `https://wa.me/${num}?text=${encodeURIComponent(waText(family))}`; }
+function makePdf() {
+  const f = S.fit, p = f.plan, i = S.inp, L = S.lead;
+  const B = [];
+  B.push({ t: 'title', s: 'Your wedding plan' });
+  B.push({ t: 'p', s: `Plan ${L.planId}  |  Prepared for ${L.name}, +91 ${L.phone}  |  ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`, size: 9, color: '0.35 0.4 0.4' });
+  B.push({ t: 'h', s: 'Your wedding' });
+  [['Where', `${p.dest.name}${i.mode === 'home' ? ' (home city)' : ' (destination)'}`], ['When', datesText(i, p.days)], ['Guests', `${f.inp.guests}`], ['Events', f.inp.events.map(e => e.name).join(', ')], ['Food', { veg: 'Vegetarian', jain: 'Jain', mixed: 'Veg and non-veg', nonveg: 'Mostly non-veg' }[i.diet] + (i.alcohol ? ', with bar' : '')], ['Budget', amt(i.budget) + (p.personal ? ` (incl. ${amt(p.personal)} for jewellery and outfits)` : '')], ['Estimate', `${amt(p.totals.typ)}  (range ${amt(p.totals.min)} to ${amt(p.totals.max)})  ${f.fits ? 'Fits your budget' : 'Over budget by ' + amt(p.totals.typ - p.celebration)}`]]
+    .forEach(([a, b]) => B.push({ t: 'row', cols: [a, b], xs: [44, 150] }));
+  if (f.applied.length) { B.push({ t: 'sub', s: 'Changes made to fit your budget' }); f.applied.forEach(a => B.push({ t: 'p', s: `- ${a.label} (saves ${amt(a.saving)})` })); }
+  B.push({ t: 'h', s: 'Where the money goes' });
+  B.push({ t: 'row', cols: ['Item', 'Estimate', 'Likely range'], xs: [44, 330, 430], bold: true, line: true });
+  p.lines.slice().sort((a, b) => (a.key === 'contingency') - (b.key === 'contingency') || b.typ - a.typ).forEach(l => B.push({ t: 'row', cols: [l.name, amt(l.typ), `${fmtShort(l.min)} - ${fmtShort(l.max)}`], xs: [44, 330, 430], line: true }));
+  B.push({ t: 'row', cols: ['Total', amt(p.totals.typ), ''], xs: [44, 330, 430], bold: true });
+  const sl = Object.values(S.short);
+  if (sl.length) { B.push({ t: 'h', s: 'Your shortlisted vendors' }); sl.forEach(v => B.push({ t: 'row', cols: [v.catName, v.name, v.price], xs: [44, 190, 360], line: true })); }
+  B.push({ t: 'h', s: 'Vendors that fit your budget' });
+  p.lines.forEach(l => {
+    const specs = LINE_VENDORS[l.key]; if (!specs) return;
+    specs.forEach(sp => {
+      const r = suggest(sp, p); if (!r.list.length) return;
+      B.push({ t: 'sub', s: `${sp.title}${r.budget != null && sp.what ? ` (your plan allows about ${amt(r.budget)} ${sp.what})` : ''}` });
+      r.list.forEach(v => B.push({ t: 'row', cols: [v.n, v.priceText, v.fit === 'in' ? 'Fits your budget' : v.fit === 'above' ? 'Above your budget' : 'Ask for a quote'], xs: [54, 250, 460], size: 9 }));
+    });
+  });
+  B.push({ t: 'sub', s: 'Invitations and gifts from King of Cards' });
+  B.push({ t: 'p', s: `About ${p.printed} invitations at around ${inr(p.cardPrice)} each (${kocShelf(p.cardPrice).label}). Return gifts and money envelopes: kingofcards.in. Free invitation consultation: kingofcards.in/pages/consultation` });
+  B.push({ t: 'h', s: 'Your events, day by day' });
+  const evs = sortEvents(f.inp.events); for (let k = 1; k <= p.days; k++) { const de = evs.filter(e => e.day === k); B.push({ t: 'row', cols: [`Day ${k}${i.date ? ', ' + dayDate(i.date, k - 1) : ''}`, de.map(e => `${e.name} (${e.slot.toLowerCase()}, ${Math.round(f.inp.guests * e.share)} guests)`).join('; ') || 'Free day'], xs: [44, 150], line: true }); }
+  B.push({ t: 'gap', h: 10 });
+  B.push({ t: 'p', s: 'Estimates are planning ranges, not quotes. Vendor prices are listed starting prices from WedMeGood or vendor websites (September 2026) and have not been verified or endorsed by King of Cards. Confirm prices and availability directly with each vendor.', size: 8.5, color: '0.35 0.4 0.4' });
+  return PDFW.build(B);
+}
+function downloadPdf() {
+  const bytes = makePdf(); const blob = new Blob([bytes], { type: 'application/pdf' }); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `King-of-Cards-Wedding-Plan-${S.lead.planId}.pdf`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  saveLead('pdf'); track('pdf_downloaded', { plan_id: S.lead.planId });
+  toast(window.self !== window.top ? 'Downloading your PDF. If nothing downloads here, open this file directly in your browser.' : 'Your PDF is downloading.');
+}
+
+/* ======================== VERIFY (OTP) ======================== */
+// The logic lives in otp.js (window.KocOtp). This block only draws the modal and reacts to results.
+
+let otpTimer = null, lastSentPhone = null;
+async function startOtp() {
+  S.modal = { err: '', busy: false, sent: false }; track('otp_requested', {});
+  if (lastSentPhone === S.inp.phone && KocOtp.cooldownLeft() > 0) { S.modal.sent = true; renderModal(); return; }
+  await sendCode();
+}
+async function sendCode() {
+  const m = S.modal; if (!m) return;
+  m.busy = true; m.err = ''; renderModal();
+  const r = await KocOtp.send(S.inp.phone);
+  if (S.modal !== m) return;
+  m.busy = false; if (r.ok) { m.sent = true; lastSentPhone = S.inp.phone; track('otp_sent', {}); } else m.err = r.error;
+  renderModal();
+}
+function tickResend() {
+  const b = $('#otpResend'); if (!b) return; const s = KocOtp.cooldownLeft();
+  b.disabled = s > 0 || !!(S.modal && S.modal.busy); b.textContent = s > 0 ? `Resend code in ${s}s` : 'Resend code';
+}
+function renderModal() {
+  const root = $('#modal-root'); const m = S.modal; clearInterval(otpTimer);
+  if (!m) { root.innerHTML = ''; return; }
+  const L = KocOtp.LENGTH;
+  root.innerHTML = `<div class="modal-bg" data-a="bgClose"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div style="display:flex;justify-content:space-between;gap:12px;align-items:start"><h2 id="mTitle">Verify your number</h2><button class="iconbtn" data-a="closeModal" aria-label="Close">Close</button></div>
+    <div id="otpForm" class="stack"><p>${m.sent ? `Enter the ${L}-digit code we sent to +91 ${esc(S.inp.phone)} on WhatsApp.` : m.busy ? `Sending a code to +91 ${esc(S.inp.phone)} on WhatsApp...` : `We could not send the code to +91 ${esc(S.inp.phone)}.`}</p><input class="inp otp" name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="${L}" aria-label="${L}-digit code" ${m.sent && !m.busy ? '' : 'disabled'}>${m.err ? `<p class="err" role="alert">${esc(m.err)}</p>` : ''}<button class="btn" type="button" data-a="otpSubmit" ${m.sent && !m.busy ? '' : 'disabled'}>${m.busy && m.sent ? 'Checking...' : 'Verify and see my plan'}</button><button type="button" class="linkbtn" id="otpResend" data-a="otpResend"></button><button type="button" class="linkbtn" data-a="closeModal">Change number</button></div></div></div>`;
+  otpTimer = setInterval(tickResend, 1000); tickResend();
+  const f = root.querySelector('input:not([disabled])'); if (f) f.focus();
+}
+async function submitOtp() {
+  const m = S.modal; if (!m || m.busy || !m.sent) return;
+  const v = $('#otpForm [name=otp]').value.replace(/\D/g, '');
+  if (v.length !== KocOtp.LENGTH) { m.err = `Enter the ${KocOtp.LENGTH}-digit code.`; renderModal(); return; }
+  m.busy = true; m.err = ''; renderModal();
+  const r = await KocOtp.verify(S.inp.phone, v);
+  if (S.modal !== m) return;
+  if (!r.ok) { m.busy = false; m.err = r.error; renderModal(); return; }
+  S.verifiedPhone = S.inp.phone; S.otpToken = r.token; S.modal = null; renderModal(); track('otp_verified', {}); generate();
+}
+
+/* ======================== EVENTS ======================== */
+function render() { if (S.view === 'planner') renderPlanner(); else if (S.view === 'results') renderResults(); else renderLanding(); }
+function onClick(e) {
+  const b = e.target.closest('[data-a]'); if (!b) return; const a = b.dataset.a; const i = S.inp;
+  switch (a) {
+    case 'start': S.inp = defaults(); S.step = 0; S.maxStep = 0; S.fit = null; S.chosenBy = null; S.suggested = null; S.short = {}; S.open = new Set(); S.view = 'planner'; track('planner_started', {}); renderPlanner(true); window.scrollTo({ top: 0 }); break;
+    case 'resume': { const r = restore(); if (!r) break; S.inp = Object.assign(defaults(), r.inp); S.step = r.step || 0; S.maxStep = r.maxStep || 0; S.short = r.short || {}; S.lead = r.lead || null; S.verifiedPhone = r.verifiedPhone || null; UID = Math.max(UID, ...S.inp.events.map(x => x.uid + 1), 1); if (r.view === 'results' && S.inp.budget && S.lead) { S.view = 'results'; recalc(); renderResults(); } else { S.view = 'planner'; renderPlanner(true); } window.scrollTo({ top: 0 }); break; }
+    case 'fresh': try { localStorage.removeItem(KEY); } catch (x) { } renderLanding(); break;
+    case 'home': S.view = 'landing'; renderLanding(); window.scrollTo({ top: 0 }); break;
+    case 'next': next(); break;
+    case 'back': if (S.step === 2) compactDays(); S.step = Math.max(0, S.step - 1); S.errors = {}; renderPlanner(true); window.scrollTo({ top: 0 }); break;
+    case 'goto': { const k = +b.dataset.step; if (k <= S.maxStep) { if (S.step === 2) compactDays(); S.step = k; S.errors = {}; renderPlanner(true); } break; }
+    case 'msum': break;
+    case 'addEvent': {
+      const key = $('#addKey').value; const nm = key === 'custom' ? ($('#addName').value || '').trim() : '';
+      if (key === 'custom' && !nm) { S.errors = { events: 'Give your event a name.' }; renderPlanner(); return; }
+      const ev = mkEvent(key, daysOf(i), nm || undefined); i.events.push(ev); i.eventsEdited = true; S.editEvent = ev.uid; S.errors = {}; S.addCustom = false;
+      track('event_added', { event_type: key }); persist(); renderPlanner(); break;
+    }
+    case 'removeEvent': { const uid = +b.dataset.uid; i.events = i.events.filter(x => x.uid !== uid); i.eventsEdited = true; persist(); renderPlanner(); break; }
+    case 'editEvent': { const uid = +b.dataset.uid; S.editEvent = S.editEvent === uid ? null : uid; renderPlanner(); break; }
+    case 'suggestBudget': {
+      const probe = planWithPriorities(Object.assign(clone(i), { style: 'classic', budget: null, diet: i.diet || 'veg', alcohol: !!i.alcohol }));
+      const pers = i.incJewellery ? i.jewelleryAmt : 0; let v = probe.totals.typ + pers; const st = BANDS[Math.max(0, bandOf(v))].step; v = Math.ceil(v / st) * st;
+      i.budget = v; i.band = bandOf(v);
+      S.suggested = `A comfortable wedding for ${i.guests} guests and ${i.events.length} events in ${dest().name} usually needs about ${amt(probe.totals.typ)}${pers ? ', plus your jewellery and outfits' : ''}. We've set your budget to ${amt(v)}; change it any time.`;
+      track('budget_suggested', { suggested: v }); persist(); renderPlanner(); break;
+    }
+    case 'line': { const k = b.dataset.k; S.open.has(k) ? S.open.delete(k) : S.open.add(k); if (S.open.has(k)) track('line_opened', { category: k }); renderResults(); break; }
+    case 'short': {
+      const k = b.dataset.k; if (S.short[k]) delete S.short[k]; else { const catName = ({ food: 'Catering', venue: 'Venue', stay: 'Rooms', decor: 'Décor', photo: 'Photography', dj: 'DJ', choreo: 'Choreographer', makeup: 'Make-up', mehendi: 'Mehendi', ceremonies: 'Priest', transport: 'Transport', planner: 'Planner', invites: 'Invitations' })[b.dataset.cat] || b.dataset.cat; S.short[k] = { category: b.dataset.cat, catName, name: b.dataset.n, price: b.dataset.price }; }
+      persist(); saveLead('shortlist'); track('vendor_shortlisted', { category: b.dataset.cat, on: !!S.short[k] }); renderResults(); break;
+    }
+    case 'toggleRaw': S.showRaw = !S.showRaw; renderResults(); break;
+    case 'editAnswers': S.view = 'planner'; S.step = 0; S.maxStep = STEPS.length - 1; renderPlanner(true); window.scrollTo({ top: 0 }); break;
+    case 'editEvents': S.view = 'planner'; S.step = 2; S.maxStep = STEPS.length - 1; renderPlanner(true); window.scrollTo({ top: 0 }); break;
+    case 'fixGuests': i.guests = S.fit.guestsFit; recalc('fix_guests'); renderResults(); window.scrollTo({ top: 0 }); toast(`Planned for ${i.guests} guests`); break;
+    case 'switchDest': i.destId = b.dataset.id; i.mode = 'destination'; S.chosenBy = null; recalc('fix_destination'); renderResults(); window.scrollTo({ top: 0 }); break;
+    case 'goHome': i.destId = i.homeCity; i.mode = 'home'; i.events = i.events.filter(x => x.key !== 'welcome'); S.chosenBy = null; recalc('fix_home'); renderResults(); window.scrollTo({ top: 0 }); break;
+    case 'raiseBudget': i.budget = Math.ceil((S.fit.plan.totals.typ + S.fit.plan.personal) / 1e5) * 1e5; i.band = bandOf(i.budget); recalc('fix_budget'); renderResults(); window.scrollTo({ top: 0 }); break;
+    case 'pdf': downloadPdf(); break;
+    case 'wa': case 'wafam': saveLead(a === 'wa' ? 'whatsapp' : 'whatsapp_family'); track(a === 'wa' ? 'whatsapp_shared' : 'whatsapp_family_shared', { plan_id: S.lead && S.lead.planId }); break;
+    case 'otpSubmit': submitOtp(); break;
+    case 'otpResend': if (!KocOtp.cooldownLeft()) sendCode(); break;
+    case 'closeModal': S.modal = null; renderModal(); break;
+    case 'bgClose': if (e.target === b) { S.modal = null; renderModal(); } break;
+    case 'koc': track('king_of_cards_product_clicked', { collection: b.dataset.n }); break;
+    case 'vendor': track('vendor_contact_clicked', { vendor: b.dataset.n }); break;
+  }
+}
+function setEv(uid, f, v) { const ev = S.inp.events.find(x => x.uid === uid); if (ev) { ev[f] = v; S.inp.eventsEdited = true; } }
+function onChange(e) {
+  const t = e.target; const n = t.name; const i = S.inp; if (!n) return;
+  if (t.closest('#otpForm')) return;
+  if (t.closest('#adjust')) {
+    if (n === 'aGuests') { const g = Math.round(+t.value); if (g >= 20 && g <= 3000) i.guests = g; }
+    if (n === 'aBudget') { const v = Math.round(+t.value * 1e5); if (v >= 3e5) { i.budget = v; i.band = bandOf(v); } }
+    if (n === 'aDest') { i.destId = t.value; S.chosenBy = null; }
+    if (n === 'aDiet') i.diet = t.value;
+    recalc(n); saveLead('adjust'); const y = window.scrollY; renderResults(); window.scrollTo({ top: y }); return;
+  }
+  const uid = t.dataset.uid ? +t.dataset.uid : null;
+  switch (n) {
+    case 'mode': i.mode = t.value; if (t.value === 'home') i.destId = DEST[i.homeCity] ? i.homeCity : ''; else if (t.value === 'destination') { if (i.destId && !DEST[i.destId].dest) i.destId = ''; } else i.destId = ''; i.eventsKey = null; S.chosenBy = null; break;
+    case 'homeCity': i.homeCity = cityId(t.value); break;
+    case 'homeDest': i.destId = cityId(t.value); i.homeCity = i.destId; break;
+    case 'destId': i.destId = t.value; break;
+    case 'region': i.region = t.value; break;
+    case 'monthKey': { const [y, m] = t.value.split('-').map(Number); const day = i.date ? +i.date.slice(8, 10) : 0; i.year = y; i.month = m; i.date = ''; if (day && day <= daysIn(m, y) && new Date(y, m - 1, day, 12) >= TODAY) i.date = isoOf(y, m, day); break; }
+    case 'day': i.date = t.value ? isoOf(i.year, i.month, +t.value) : ''; break;
+    case 'guests': case 'guestsN': { const g = Math.round(+t.value); if (g >= 20 && g <= 3000) i.guests = g; break; }
+    case 'stayShare': case 'outShare': i[n] = +t.value / 100; break;
+    case 'trad': { const set = new Set(i.traditions); t.checked ? set.add(t.value) : set.delete(t.value); i.traditions = [...set].slice(0, 2); const tr = TRADITIONS.find(x => x.id === t.value); if (t.checked && tr && tr.diet && !i.diet) i.diet = tr.diet; i.eventsEdited = false; break; }
+    case 'addKey': S.addCustom = t.value === 'custom'; { const w = $('#customWrap'); if (w) w.style.display = S.addCustom ? '' : 'none'; } return;
+    case 'addName': return;
+    case 'evDay': setEv(uid, 'day', +t.value); break;
+    case 'evSlot': setEv(uid, 'slot', t.value); break;
+    case 'evMeal': setEv(uid, 'meal', t.value); break;
+    case 'evShare': setEv(uid, 'share', +t.value / 100); break;
+    case 'evDecor': setEv(uid, 'decor', +t.value); break;
+    case 'evSetting': setEv(uid, 'setting', t.value); break;
+    case 'diet': i.diet = t.value; break;
+    case 'alcohol': i.alcohol = t.value === 'yes'; break;
+    case 'band': { const b = BANDS[+t.value]; i.band = +t.value; if (!i.budget || i.budget < b.lo || i.budget >= b.hi) i.budget = Math.round((b.lo + (b.hi - b.lo) / 2) / b.step) * b.step; S.suggested = null; break; }
+    case 'budget': i.budget = +t.value; break;
+    case 'incJewellery': i.incJewellery = t.checked; if (t.checked && !i.jewelleryAmt && i.budget) i.jewelleryAmt = Math.round(i.budget * 0.25 / 10000) * 10000; break;
+    case 'jewelleryAmt': i.jewelleryAmt = Math.max(0, Math.round(+t.value || 0)); break;
+    case 'prio': { const set = new Set(i.priorities); t.checked ? set.add(t.value) : set.delete(t.value); i.priorities = [...set].slice(0, 3); break; }
+    case 'fullname': i.fullname = t.value.trim(); persist(); return;
+    case 'phone': i.phone = t.value.replace(/\D/g, '').slice(-10); persist(); return;
+    case 'email': i.email = t.value.trim(); persist(); return;
+    case 'role': i.role = t.value; persist(); return;
+    case 'consentPlan': i.consentPlan = t.checked; persist(); return;
+    case 'consentMkt': i.consentMkt = t.checked; persist(); return;
+    default: return;
+  }
+  S.errors = {}; persist();
+  if (S.view === 'planner') {
+    const y = window.scrollY; const sel = (t.type === 'radio' || t.type === 'checkbox') ? `[name="${n}"][value="${CSS.escape(t.value)}"]` : `[name="${n}"]${uid ? `[data-uid="${uid}"]` : ''}`;
+    renderPlanner(); window.scrollTo({ top: y }); const f = app.querySelector(sel); if (f) f.focus({ preventScroll: true });
+  }
+}
+function onInput(e) {
+  const t = e.target; const n = t.name; const i = S.inp; if (S.view !== 'planner') return;
+  if (n === 'guests') { i.guests = +t.value; $('#guestsV').textContent = i.guests; const nb = app.querySelector('[name=guestsN]'); if (nb) nb.value = i.guests; updShare(); refreshSummary(); }
+  if (n === 'stayShare' || n === 'outShare') { i[n] = +t.value / 100; updShare(); refreshSummary(); }
+  if (n === 'budget') { i.budget = +t.value; $('#budV').textContent = amt(i.budget); refreshSummary(); const bc = $('#budgetCheck'); if (bc) bc.innerHTML = budgetCheck(liveFit()); }
+  if (n === 'evShare') { const uid = +t.dataset.uid; const ev = i.events.find(x => x.uid === uid); if (ev) { ev.share = +t.value / 100; $('#evShareV' + uid).textContent = `${t.value}% (${Math.round(i.guests * ev.share)})`; } }
+  if (['fullname', 'phone', 'email'].includes(n)) { if (n === 'phone') i.phone = t.value.replace(/\D/g, '').slice(-10); else if (n === 'fullname') i.fullname = t.value.trim(); else i.email = t.value.trim(); }
+}
+function updShare() { const i = S.inp; const s = $('#shareV'); if (s) s.textContent = `${Math.round(i.guests * (i.mode !== 'home' ? i.stayShare : i.outShare))} guests`; }
+function onKey(e) {
+  if (e.key === 'Escape' && S.modal) { S.modal = null; renderModal(); return; }
+  if (e.key !== 'Enter' || e.isComposing) return;
+  const t = e.target; if (!(t instanceof HTMLInputElement)) return;
+  if (t.closest('#otpForm')) { e.preventDefault(); submitOtp(); }
+  else if (t.closest('#adjust')) { e.preventDefault(); t.blur(); }
+  else if (t.closest('#stepForm') && t.type !== 'checkbox' && t.type !== 'radio') { e.preventDefault(); t.dispatchEvent(new Event('change', { bubbles: true })); next(); }
+}
+document.addEventListener('keydown', onKey);
+app.addEventListener('click', onClick); $('#modal-root').addEventListener('click', onClick);
+app.addEventListener('change', onChange); app.addEventListener('input', onInput);
+render();
+})();
+
+</script>
+</body>
+</html>
