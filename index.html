@@ -1452,7 +1452,7 @@ function stepHTML() {
       const seasonNote = se ? { peak: `Peak wedding season in ${d.name}: best weather, highest prices. Book venues early.`, shoulder: `Shoulder season in ${d.name}: usually good weather and more venue choice.`, off: `Off-season in ${d.name}: lower prices, but check the heat or cold for outdoor events.`, monsoon: `Monsoon in ${d.name}: lower prices, but outdoor events need a rain back-up.` }[se.band] : '';
       let dayOpts = '';
       if (i.month) { const n = daysIn(i.month, i.year); for (let k = 1; k <= n; k++) { const dt = new Date(i.year, i.month - 1, k, 12); if (dt < TODAY) continue; dayOpts += `<option value="${k}" ${i.date === isoOf(i.year, i.month, k) ? 'selected' : ''}>${WD[dt.getDay()]} ${k} ${MONTHS[i.month - 1].slice(0, 3)}</option>`; } }
-      return `<h2>Where and when?</h2><p class="help">This decides how we price rooms, travel and food.</p>
+      return `<h2>Where and when?</h2><p class="help">This decides how we price rooms, travel and food. We'll move on automatically once you pick a month.</p>
       <fieldset class="q"><legend>Is the wedding in your city, or are you travelling?</legend>
         <div class="opts">${radio('mode', 'home', i.mode, 'In our city', 'Most guests live nearby')}${radio('mode', 'destination', i.mode, 'A destination wedding', 'Guests travel and stay')}${radio('mode', 'unsure', i.mode, 'Not sure yet', 'Suggest a destination for us')}</div>${errHTML('mode')}</fieldset>
       ${i.mode === 'home' ? `<div class="q field" style="max-width:360px"><label for="wcity">Which city?</label><input class="inp" id="wcity" name="homeDest" list="cityList" placeholder="Type to search a city" autocomplete="off" value="${dest() ? esc(dest().name) : ''}"><datalist id="cityList">${cityOptions()}</datalist>${errHTML('destId')}</div>` : ''}
@@ -1460,7 +1460,6 @@ function stepHTML() {
       ${i.mode === 'destination' ? `<fieldset class="q"><legend>Destination</legend><div class="opts">${dests.map(x => radio('destId', x.id, i.destId, x.name, x.type)).join('')}</div>${errHTML('destId')}</fieldset>` : ''}
       ${i.mode === 'unsure' ? `<fieldset class="q"><legend>What kind of place do you picture?</legend><div class="opts">${radio('region', 'Rajasthan', i.region, 'Palaces and forts', 'Udaipur, Jaipur, Jodhpur')}${radio('region', 'Beach', i.region, 'Beach', 'Goa')}${radio('region', 'South', i.region, 'South India', 'Kerala, Mysuru, Hyderabad')}${radio('region', 'Hills', i.region, 'Hills', 'Coorg')}${radio('region', 'any', i.region, 'Best value', 'Whatever fits the budget')}</div>${errHTML('region')}</fieldset>` : ''}
       <fieldset class="q"><legend>Wedding month</legend><div class="chips">${monthList().map(({ m, y }) => chip('radio', 'monthKey', `${y}-${m}`, i.month === m && i.year === y, `${MONTHS[m - 1].slice(0, 3)} ${y}`)).join('')}</div>${errHTML('month')}</fieldset>
-      ${i.month ? `<div class="q field" style="max-width:280px"><label for="day">First day of the celebrations (optional)</label><select class="inp" id="day" name="day"><option value="">Not decided yet</option>${dayOpts}</select></div>` : ''}
       ${seasonNote ? `<p class="note ${se.band === 'monsoon' ? 'bad' : se.band === 'peak' ? '' : 'info'}">${esc(seasonNote)}</p>` : ''}`;
     }
     case 1: {
@@ -1485,7 +1484,7 @@ function stepHTML() {
         <button type="button" class="btn ghost" data-a="addEvent">Add event</button></div>`;
     }
     case 3:
-      return `<h2>Food and drinks</h2><p class="help">Catering is one of the biggest costs.</p>
+      return `<h2>Food and drinks</h2><p class="help">Catering is one of the biggest costs. We'll move on automatically once you've answered both questions.</p>
       <fieldset class="q"><legend>What will you serve?</legend><div class="opts">${radio('diet', 'veg', i.diet, 'Vegetarian')}${radio('diet', 'mixed', i.diet, 'Veg and non-veg')}${radio('diet', 'nonveg', i.diet, 'Mostly non-veg')}</div>${errHTML('diet')}</fieldset>
       <fieldset class="q"><legend>Will you serve alcohol?</legend><div class="opts">${radio('alcohol', 'yes', i.alcohol === true ? 'yes' : i.alcohol === false ? 'no' : '', 'Yes', 'At the evening events')}${radio('alcohol', 'no', i.alcohol === true ? 'yes' : i.alcohol === false ? 'no' : '', 'No')}</div>${errHTML('alcohol')}</fieldset>
       ${dest() && /alcohol/i.test(dest().note) && (i.alcohol || i.diet === 'mixed' || i.diet === 'nonveg') ? `<p class="note bad">${esc(dest().note)}</p>` : ''}`;
@@ -1510,8 +1509,8 @@ function stepHTML() {
       <div class="q"><label class="consent"><input type="checkbox" name="consentPlan" ${i.consentPlan ? 'checked' : ''}> <span>Share my plan and contact details with King of Cards so their team can help me plan. <a href="${KOC}/pages/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></span></label>${errHTML('consentPlan')}
       <label class="consent" style="margin-top:10px"><input type="checkbox" name="consentMkt" ${i.consentMkt ? 'checked' : ''}> <span>Also send me wedding tips and King of Cards offers on WhatsApp (optional). I can stop anytime.</span></label></div>`;
     case 5:
-      return `<h2>What matters most?</h2><p class="help">Optional. Pick up to three and we'll protect them when fitting your budget.</p>
-      <fieldset class="q"><legend class="sr">Priorities</legend><div class="chips">${Object.entries(PRIO).map(([k, v]) => chip('checkbox', 'prio', k, i.priorities.includes(k), v.label, !i.priorities.includes(k) && i.priorities.length >= 3, i.priorities.indexOf(k) + 1)).join('')}</div></fieldset>`;
+      return `<h2>What matters most?</h2><p class="help">Pick exactly three. We'll protect them when fitting your budget. <b>${i.priorities.length} of 3 chosen</b></p>
+      <fieldset class="q"><legend class="sr">Priorities</legend><div class="chips">${Object.entries(PRIO).map(([k, v]) => chip('checkbox', 'prio', k, i.priorities.includes(k), v.label, !i.priorities.includes(k) && i.priorities.length >= 3, i.priorities.indexOf(k) + 1)).join('')}</div>${errHTML('prio')}</fieldset>`;
   }
   return '';
 }
@@ -1534,7 +1533,7 @@ function evRow(e) {
       <div class="field"><label>Setting</label><select class="inp" name="evSetting" data-uid="${e.uid}"><option value="indoor" ${e.setting === 'indoor' ? 'selected' : ''}>Indoor</option><option value="outdoor" ${e.setting === 'outdoor' ? 'selected' : ''}>Outdoor</option></select></div>
     </div>` : ''}</div>`;
 }
-function validate(step) {
+function getErrors(step) {
   const i = S.inp; const e = {};
   if (step === 0) {
     if (!i.mode) e.mode = 'Choose where the wedding is.';
@@ -1546,6 +1545,7 @@ function validate(step) {
   }
   if (step === 1 && (!(i.guests >= 20) || i.guests > 3000)) e.guests = 'Enter between 20 and 3,000 guests.';
   if (step === 2 && !i.events.length) e.events = 'Add at least one event.';
+  if (step === 5 && i.priorities.length !== 3) e.prio = 'Choose exactly 3 priorities to continue.';
   if (step === 3) { if (!i.diet) e.diet = 'Choose what you will serve.'; if (i.alcohol == null) e.alcohol = 'Choose yes or no.'; }
   if (step === 6) {
     if (!i.fullname || i.fullname.length < 2) e.fullname = 'Enter your name.';
@@ -1554,10 +1554,13 @@ function validate(step) {
     if (!i.consentPlan) e.consentPlan = 'Tick the box so we can share your plan with you and the King of Cards team.';
   }
   if (step === 4) { if (!i.budget) e.budget = 'Choose a budget range, or tap "Suggest a budget for me".'; else if (i.incJewellery && i.jewelleryAmt >= i.budget) e.budget = 'Jewellery and outfits take up the whole budget. Lower that amount or raise the budget.'; }
-  S.errors = e; return !Object.keys(e).length;
+  return e;
 }
+function validate(step) { S.errors = getErrors(step); return !Object.keys(S.errors).length; }
+const stepReady = step => !Object.keys(getErrors(step)).length;
 function compactDays() { const used = [...new Set(S.inp.events.map(e => e.day))].sort((a, b) => a - b); S.inp.events.forEach(e => { e.day = used.indexOf(e.day) + 1; }); }
 function next() {
+  clearTimeout(autoTimer);
   if (!validate(S.step)) {
     renderPlanner(); const first = app.querySelector('.q .err, .field .err'); const box = first && first.closest('.q, .field');
     const ctl = box && box.querySelector('input:not([disabled]), select'); if (box) box.scrollIntoView({ block: 'center' }); if (ctl) ctl.focus({ preventScroll: true });
@@ -1774,7 +1777,9 @@ function planId() { const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = 'KOC-'
 function leadRecord() {
   const i = S.inp, f = S.fit, p = f.plan;
   return {
-    plan_id: S.lead.planId, created_at: new Date().toISOString(), source: 'koc-ai-wedding-planner', otp_token: S.otpToken || null,
+    plan_id: S.lead.planId, session: S.lead.planId, created_at: new Date().toISOString(), source: 'koc-ai-wedding-planner',
+    dest_name: p.dest.name, home_name: (DEST[i.homeCity] || {}).name || '', band_label: (BANDS[bandOf(i.budget)] || {}).label || '',
+    estimate: p.totals.typ, est_min: p.totals.min, est_max: p.totals.max, fits: f.fits, style: p.tierName, changes: f.applied.map(a => a.label), otp_token: S.otpToken || null,
     customer: { name: S.lead.name, whatsapp: '+91' + S.lead.phone, email: S.lead.email || null, role: S.lead.role || null, consent_plan: true, consent_marketing: !!S.lead.consent },
     wedding: { mode: i.mode, destination: p.dest.name, home_city: i.homeCity, month: i.month, year: i.year, start_date: i.date || null, guests: f.inp.guests, events: f.inp.events.map(e => ({ name: e.name, day: e.day, slot: e.slot, meal: e.meal, decor: e.decor, setting: e.setting, guests: Math.round(f.inp.guests * e.share) })), traditions: i.traditions, food: i.diet, alcohol: i.alcohol, priorities: i.priorities },
     budget: { total: i.budget, jewellery_outfits: p.personal || 0, estimate_typical: p.totals.typ, estimate_min: p.totals.min, estimate_max: p.totals.max, fits: f.fits, style: p.tierName, changes_applied: f.applied.map(a => a.label) },
@@ -1784,7 +1789,7 @@ function leadRecord() {
 }
 function saveLead(reason) {
   const rec = leadRecord();
-  rec.reason = reason;
+  rec.reason = reason; rec.step = reason;
   rec.inputs = clone(S.inp);
   try { const all = JSON.parse(localStorage.getItem('kocLeads.v1') || '[]'); const k = all.findIndex(x => x.plan_id === rec.plan_id); if (k >= 0) all[k] = rec; else all.push(rec); localStorage.setItem('kocLeads.v1', JSON.stringify(all)); } catch (e) { }
   if (LEAD_ENDPOINT) { try { fetch(LEAD_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(rec) }).catch(() => { }); } catch (e) { } }
@@ -1896,8 +1901,8 @@ function onClick(e) {
     case 'fresh': try { localStorage.removeItem(KEY); } catch (x) { } renderLanding(); break;
     case 'home': S.view = 'landing'; renderLanding(); window.scrollTo({ top: 0 }); break;
     case 'next': next(); break;
-    case 'back': if (S.step === 2) compactDays(); S.step = Math.max(0, S.step - 1); S.errors = {}; renderPlanner(true); window.scrollTo({ top: 0 }); break;
-    case 'goto': { const k = +b.dataset.step; if (k <= S.maxStep) { if (S.step === 2) compactDays(); S.step = k; S.errors = {}; renderPlanner(true); } break; }
+    case 'back': clearTimeout(autoTimer); if (S.step === 2) compactDays(); S.step = Math.max(0, S.step - 1); S.errors = {}; renderPlanner(true); window.scrollTo({ top: 0 }); break;
+    case 'goto': { clearTimeout(autoTimer); const k = +b.dataset.step; if (k <= S.maxStep) { if (S.step === 2) compactDays(); S.step = k; S.errors = {}; renderPlanner(true); } break; }
     case 'msum': break;
     case 'addEvent': {
       const key = $('#addKey').value; const nm = key === 'custom' ? ($('#addName').value || '').trim() : '';
@@ -1937,6 +1942,19 @@ function onClick(e) {
   }
 }
 function setEv(uid, f, v) { const ev = S.inp.events.find(x => x.uid === uid); if (ev) { ev[f] = v; S.inp.eventsEdited = true; } }
+const AUTO_STEPS = new Set([0, 3]);
+let autoTimer = null;
+function scheduleAuto(t) {
+  clearTimeout(autoTimer);
+  if (S.view !== 'planner' || !AUTO_STEPS.has(S.step)) return;
+  if (t.type !== 'radio' || S.step !== S.maxStep) return;
+  if (S.step === 0 && t.name !== 'monthKey') return;   // month chip is the last tap on step 0
+  if (S.step === 3 && dest() && /alcohol/i.test(dest().note) && (S.inp.alcohol || S.inp.diet !== 'veg')) return; // let them read the warning
+  if (!stepReady(S.step)) return;
+  autoTimer = setTimeout(() => {
+    if (stepReady(S.step)) { track('step_auto_advanced', { step: STEPS[S.step] }); next(); }
+  }, S.step === 0 ? 1200 : 450);
+}
 function onChange(e) {
   const t = e.target; const n = t.name; const i = S.inp; if (!n) return;
   if (t.closest('#otpForm')) return;
@@ -1986,6 +2004,7 @@ function onChange(e) {
   if (S.view === 'planner') {
     const y = window.scrollY; const sel = (t.type === 'radio' || t.type === 'checkbox') ? `[name="${n}"][value="${CSS.escape(t.value)}"]` : `[name="${n}"]${uid ? `[data-uid="${uid}"]` : ''}`;
     renderPlanner(); window.scrollTo({ top: y }); const f = app.querySelector(sel); if (f) f.focus({ preventScroll: true });
+    scheduleAuto(t);
   }
 }
 function onInput(e) {
